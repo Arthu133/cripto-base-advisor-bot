@@ -51,7 +51,7 @@ const ConsultationForm = () => {
     const encodedMessage = encodeURIComponent(message);
     
     // Direct to Telegram bot instead of WhatsApp
-    const telegramBotUrl = `https://t.me/seu_bot_username?start=${encodedMessage}`;
+    const telegramBotUrl = `https://t.me/CriptoBaseBot?start=${encodedMessage}`;
     
     toast({
       title: "Formulário enviado com sucesso!",
