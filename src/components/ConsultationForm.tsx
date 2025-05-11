@@ -49,16 +49,18 @@ const ConsultationForm = () => {
 
     // Encode message for URL
     const encodedMessage = encodeURIComponent(message);
-    const whatsappUrl = `https://wa.me/31986585947?text=${encodedMessage}`;
+    
+    // Direct to Telegram bot instead of WhatsApp
+    const telegramBotUrl = `https://t.me/seu_bot_username?start=${encodedMessage}`;
     
     toast({
       title: "Formulário enviado com sucesso!",
-      description: "Você será redirecionado para o WhatsApp em instantes.",
+      description: "Você será redirecionado para o Telegram em instantes.",
     });
     
-    // Redirect to WhatsApp after a short delay
+    // Redirect to Telegram after a short delay
     setTimeout(() => {
-      window.location.href = whatsappUrl;
+      window.location.href = telegramBotUrl;
     }, 1500);
   };
 
