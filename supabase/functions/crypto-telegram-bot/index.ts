@@ -115,9 +115,10 @@ async function saveChatMessage(chatId: number, consultationId: string | null, me
 }
 
 // Get the latest consultation for this chat
-async function getConsultationForChat(chatId: number): Promise<string | null> {
+async function getConsultationForChat(chatId: number): Promise<any | null> {
   try {
-    const { data: chatMessage, error } = await supabase
+    // First get the consultation ID
+    const { data: chatMessage, error: chatError } = await supabase
       .from('chat_messages')
       .select('consultation_id')
       .eq('telegram_chat_id', chatId)
@@ -126,15 +127,89 @@ async function getConsultationForChat(chatId: number): Promise<string | null> {
       .limit(1)
       .single();
 
-    if (error || !chatMessage || !chatMessage.consultation_id) {
+    if (chatError || !chatMessage || !chatMessage.consultation_id) {
+      return null;
+    }
+    
+    // Then get the consultation data
+    const { data: consultation, error: consultationError } = await supabase
+      .from('consultations')
+      .select('*')
+      .eq('id', chatMessage.consultation_id)
+      .single();
+      
+    if (consultationError || !consultation) {
       return null;
     }
 
-    return chatMessage.consultation_id;
+    return consultation;
   } catch (error) {
     console.error("Exception while getting consultation for chat:", error);
     return null;
   }
+}
+
+// Generate personalized system prompt based on consultation data
+function generateSystemPrompt(consultationData: any): string {
+  // Base prompt
+  let prompt = `Você é um consultor especialista em criptomoedas, ajudando um usuário com o seguinte perfil:`;
+  
+  // Add knowledge level
+  if (consultationData.knowledge_level === "beginner") {
+    prompt += `\n- Nível de conhecimento: Iniciante. Use linguagem simples, evite termos técnicos complexos e explique conceitos básicos.`;
+  } else if (consultationData.knowledge_level === "intermediate") {
+    prompt += `\n- Nível de conhecimento: Intermediário. Você pode usar alguns termos técnicos, mas ainda forneça explicações para conceitos mais avançados.`;
+  } else if (consultationData.knowledge_level === "advanced") {
+    prompt += `\n- Nível de conhecimento: Avançado. Você pode usar terminologia técnica livremente, assumindo um bom entendimento de blockchain e criptomoedas.`;
+  }
+  
+  // Add objective
+  if (consultationData.objective === "longTerm") {
+    prompt += `\n- Objetivo: Investimento a longo prazo. Foque em estratégias de HODL, diversificação, DCA, e projetos com fundamentos sólidos.`;
+  } else if (consultationData.objective === "trading") {
+    prompt += `\n- Objetivo: Trading. Foque em análise técnica, gestão de risco, ferramentas de trading e estratégias de entrada/saída.`;
+  } else if (consultationData.objective === "staking") {
+    prompt += `\n- Objetivo: Staking/DeFi. Foque em protocolos DeFi, yield farming, staking de tokens, e riscos associados.`;
+  } else if (consultationData.objective === "basics") {
+    prompt += `\n- Objetivo: Entender o básico. Foque em explicar o que são criptomoedas, blockchain, carteiras, exchanges e segurança básica.`;
+  }
+  
+  // Add investment amount
+  if (consultationData.investment_amount === "lessThan100") {
+    prompt += `\n- Orçamento: Menos de R$100 mensais. Sugira opções de baixo custo e possivelmente microcaps.`;
+  } else if (consultationData.investment_amount === "between100And500") {
+    prompt += `\n- Orçamento: Entre R$100 e R$500 mensais. Sugira um portfólio diversificado com algumas alocações em altcoins.`;
+  } else if (consultationData.investment_amount === "moreThan500") {
+    prompt += `\n- Orçamento: Mais de R$500 mensais. Sugira uma estratégia de portfólio mais sofisticada, possivelmente incluindo staking, DeFi e tokens de diversos setores.`;
+  }
+  
+  // Add exchange info
+  if (consultationData.has_exchange) {
+    prompt += `\n- Já possui conta em corretora: ${consultationData.exchange_name ? consultationData.exchange_name : "Sim"}. Você pode recomendar diretamente operações usando esta corretora.`;
+  } else {
+    prompt += `\n- Não possui conta em corretora. Inclua informações sobre como escolher e abrir conta em corretoras confiáveis quando relevante.`;
+  }
+  
+  // Add wallet info
+  if (consultationData.has_wallet) {
+    prompt += `\n- Já possui carteira cripto. Você pode assumir que o usuário sabe como receber e enviar criptomoedas.`;
+  } else {
+    prompt += `\n- Não possui carteira cripto. Inclua informações sobre como criar e usar carteiras de forma segura quando relevante.`;
+  }
+  
+  // General guidelines
+  prompt += `\n\nDiretrizes gerais:
+- Seja amigável e paciente
+- Forneça informações precisas e atualizadas
+- Não dê conselhos financeiros específicos ou garantias de investimento
+- Sempre priorize a segurança e a educação do usuário
+- Ajude a desmistificar o mercado cripto evitando jargões desnecessários
+- Dê exemplos práticos quando possível
+- Mantenha respostas concisas, com no máximo 3 parágrafos quando possível
+
+Em sua primeira mensagem, depois de uma breve saudação personalizada, sugira 3-4 tópicos relevantes ao perfil do usuário sobre os quais ele pode perguntar.`;
+
+  return prompt;
 }
 
 // Handle Telegram update
@@ -149,49 +224,78 @@ async function handleTelegramUpdate(update: any) {
   
   // Check if this is a /start command with parameters
   let consultationId = null;
+  let consultationData = null;
+  
   if (messageText.startsWith("/start") && messageText.length > 7) {
     const startParam = messageText.substring(7);
     const decodedParam = decodeURIComponent(startParam);
     console.log("Start parameter:", decodedParam);
     
     // Extract consultation data from start parameter
-    const consultationData = await getConsultationDataFromMessage(decodedParam);
+    consultationData = await getConsultationDataFromMessage(decodedParam);
     
     if (consultationData) {
       // Save consultation data
       consultationId = await saveConsultation(chatId, consultationData);
       console.log("Created consultation:", consultationId);
       
+      // Generate personalized welcome message
+      let welcomeMessage = "👋 Olá! Sou seu consultor de criptomoedas personalizado. Li suas informações e estou pronto para ajudar!\n\n";
+      
+      // Customize based on knowledge level
+      if (consultationData.knowledge_level === "beginner") {
+        welcomeMessage += "Vejo que você está começando sua jornada no mundo cripto. Não se preocupe, vou explicar tudo com linguagem simples.\n\n";
+      } else if (consultationData.knowledge_level === "intermediate") {
+        welcomeMessage += "Vejo que você já tem algum conhecimento sobre criptomoedas. Vamos aprofundar esse conhecimento juntos!\n\n";
+      } else if (consultationData.knowledge_level === "advanced") {
+        welcomeMessage += "Vejo que você já é experiente no mundo cripto. Vamos discutir estratégias mais avançadas!\n\n";
+      }
+      
+      // Add objective-specific content
+      if (consultationData.objective === "basics") {
+        welcomeMessage += "Com base no seu perfil, posso ajudar com:\n";
+        welcomeMessage += "- O que são criptomoedas e como funcionam\n";
+        welcomeMessage += "- Como criar e proteger suas carteiras\n";
+        welcomeMessage += "- Como escolher uma exchange confiável\n";
+        welcomeMessage += "- Fundamentos de Bitcoin e Ethereum\n\n";
+      } else if (consultationData.objective === "longTerm") {
+        welcomeMessage += "Com base no seu perfil, posso ajudar com:\n";
+        welcomeMessage += "- Estratégias de investimento a longo prazo\n";
+        welcomeMessage += "- Diversificação de portfólio\n";
+        welcomeMessage += "- Dollar-Cost Averaging (DCA)\n";
+        welcomeMessage += "- Projetos com fundamentos sólidos\n\n";
+      } else if (consultationData.objective === "trading") {
+        welcomeMessage += "Com base no seu perfil, posso ajudar com:\n";
+        welcomeMessage += "- Análise técnica básica\n";
+        welcomeMessage += "- Gestão de risco no trading\n";
+        welcomeMessage += "- Estratégias de entrada e saída\n";
+        welcomeMessage += "- Ferramentas úteis para traders\n\n";
+      } else if (consultationData.objective === "staking") {
+        welcomeMessage += "Com base no seu perfil, posso ajudar com:\n";
+        welcomeMessage += "- Como funciona staking de criptomoedas\n";
+        welcomeMessage += "- Oportunidades de DeFi e yield farming\n";
+        welcomeMessage += "- Riscos e recompensas do staking\n";
+        welcomeMessage += "- Protocolos DeFi populares\n\n";
+      }
+      
+      welcomeMessage += "Como posso ajudar você hoje?";
+      
       // Send welcome message
-      await sendTelegramMessage(chatId, 
-        "👋 Olá! Sou seu consultor de criptomoedas. Li suas informações e estou pronto para ajudar!\n\n" +
-        "Você pode me perguntar sobre:\n" +
-        "- Conceitos básicos de criptomoedas\n" +
-        "- Dicas para iniciantes\n" +
-        "- Estratégias de investimento\n" +
-        "- Segurança digital\n\n" +
-        "Como posso ajudar você hoje?"
-      );
+      await sendTelegramMessage(chatId, welcomeMessage);
       
       // Save welcome message
-      await saveChatMessage(chatId, consultationId, 
-        "👋 Olá! Sou seu consultor de criptomoedas. Li suas informações e estou pronto para ajudar!\n\n" +
-        "Você pode me perguntar sobre:\n" +
-        "- Conceitos básicos de criptomoedas\n" +
-        "- Dicas para iniciantes\n" +
-        "- Estratégias de investimento\n" +
-        "- Segurança digital\n\n" +
-        "Como posso ajudar você hoje?", 
-        false
-      );
+      await saveChatMessage(chatId, consultationId, welcomeMessage, false);
       
       return { ok: true };
     }
   }
   
   // Get the latest consultation for this user
-  if (!consultationId) {
-    consultationId = await getConsultationForChat(chatId);
+  if (!consultationData) {
+    consultationData = await getConsultationForChat(chatId);
+    if (consultationData) {
+      consultationId = consultationData.id;
+    }
   }
 
   // Save user message
@@ -202,7 +306,7 @@ async function handleTelegramUpdate(update: any) {
 
   try {
     // Get response from OpenAI
-    const aiResponse = await getOpenAIResponse(messageText);
+    const aiResponse = await getOpenAIResponse(messageText, consultationData);
     
     // Send the response back to Telegram
     await sendTelegramMessage(chatId, aiResponse);
@@ -249,7 +353,11 @@ async function sendChatAction(chatId: number, action: string) {
 }
 
 // Get response from OpenAI
-async function getOpenAIResponse(userMessage: string): Promise<string> {
+async function getOpenAIResponse(userMessage: string, consultationData: any | null): Promise<string> {
+  const systemPrompt = consultationData 
+    ? generateSystemPrompt(consultationData)
+    : "Você é um consultor de criptomoedas para iniciantes. Responda de forma amigável, clara e educativa. Use linguagem simples e explique conceitos complexos de forma acessível. Forneça informações precisas sobre Bitcoin, Ethereum e outras criptomoedas populares. Ajude iniciantes com estratégias básicas, segurança e como evitar golpes. Não dê conselhos financeiros específicos ou garantias de investimento. Mantenha as respostas concisas com no máximo 3 parágrafos quando possível.";
+
   const response = await fetch(OPENAI_API, {
     method: "POST",
     headers: {
@@ -261,13 +369,7 @@ async function getOpenAIResponse(userMessage: string): Promise<string> {
       messages: [
         {
           role: "system",
-          content: `Você é um consultor de criptomoedas para iniciantes. 
-          Responda de forma amigável, clara e educativa. 
-          Use linguagem simples e explique conceitos complexos de forma acessível. 
-          Forneça informações precisas sobre Bitcoin, Ethereum e outras criptomoedas populares.
-          Ajude iniciantes com estratégias básicas, segurança e como evitar golpes.
-          Não dê conselhos financeiros específicos ou garantias de investimento.
-          Mantenha as respostas concisas com no máximo 3 parágrafos quando possível.`
+          content: systemPrompt
         },
         { role: "user", content: userMessage }
       ],
