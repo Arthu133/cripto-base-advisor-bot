@@ -1,3 +1,4 @@
+
 // @deno-types="https://deno.land/std@0.168.0/http/server.d.ts"
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
@@ -76,9 +77,13 @@ async function getConsultationDataFromMessage(message: string): Promise<any | nu
 // Save consultation data to database
 async function saveConsultation(chatId: number, data: any): Promise<string | null> {
   try {
+    console.log(`Saving consultation for chat ${chatId} with data:`, data);
     const { data: consultation, error } = await supabase
       .from('consultations')
-      .insert(data)
+      .insert({
+        ...data,
+        user_id: chatId.toString() // Use chatId as a user identifier
+      })
       .select('id')
       .single();
 
@@ -87,6 +92,7 @@ async function saveConsultation(chatId: number, data: any): Promise<string | nul
       return null;
     }
 
+    console.log("Consultation saved with ID:", consultation.id);
     return consultation.id;
   } catch (error) {
     console.error("Exception while saving consultation:", error);
@@ -97,6 +103,7 @@ async function saveConsultation(chatId: number, data: any): Promise<string | nul
 // Save chat message to database
 async function saveChatMessage(chatId: number, consultationId: string | null, message: string, isFromUser: boolean) {
   try {
+    console.log(`Saving message for chat ${chatId}, consultation ${consultationId}, isFromUser: ${isFromUser}`);
     const { error } = await supabase
       .from('chat_messages')
       .insert({
@@ -117,7 +124,22 @@ async function saveChatMessage(chatId: number, consultationId: string | null, me
 // Get the latest consultation for this chat
 async function getConsultationForChat(chatId: number): Promise<any | null> {
   try {
-    // First get the consultation ID
+    console.log(`Getting latest consultation for chat ${chatId}`);
+    // First try to find consultation directly linked to this chat ID (as user_id)
+    const { data: directConsultation, error: directError } = await supabase
+      .from('consultations')
+      .select('*')
+      .eq('user_id', chatId.toString())
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    
+    if (!directError && directConsultation) {
+      console.log("Found direct consultation:", directConsultation);
+      return directConsultation;
+    }
+    
+    // If not found, try checking chat_messages
     const { data: chatMessage, error: chatError } = await supabase
       .from('chat_messages')
       .select('consultation_id')
@@ -125,9 +147,10 @@ async function getConsultationForChat(chatId: number): Promise<any | null> {
       .is('consultation_id', 'not.null')
       .order('created_at', { ascending: false })
       .limit(1)
-      .single();
+      .maybeSingle();
 
     if (chatError || !chatMessage || !chatMessage.consultation_id) {
+      console.log("No consultation found for chat");
       return null;
     }
     
@@ -139,9 +162,11 @@ async function getConsultationForChat(chatId: number): Promise<any | null> {
       .single();
       
     if (consultationError || !consultation) {
+      console.log("Error getting consultation details:", consultationError);
       return null;
     }
 
+    console.log("Found consultation via chat_messages:", consultation);
     return consultation;
   } catch (error) {
     console.error("Exception while getting consultation for chat:", error);
@@ -151,6 +176,7 @@ async function getConsultationForChat(chatId: number): Promise<any | null> {
 
 // Generate personalized system prompt based on consultation data
 function generateSystemPrompt(consultationData: any): string {
+  console.log("Generating system prompt with consultation data:", consultationData);
   // Base prompt
   let prompt = `Você é um consultor especialista em criptomoedas, ajudando um usuário com o seguinte perfil:`;
   
@@ -209,6 +235,7 @@ function generateSystemPrompt(consultationData: any): string {
 
 Em sua primeira mensagem, depois de uma breve saudação personalizada, sugira 3-4 tópicos relevantes ao perfil do usuário sobre os quais ele pode perguntar.`;
 
+  console.log("Generated system prompt:", prompt);
   return prompt;
 }
 
@@ -233,8 +260,12 @@ async function handleTelegramUpdate(update: any) {
     
     // Extract consultation data from start parameter
     consultationData = await getConsultationDataFromMessage(decodedParam);
+    console.log("Extracted consultation data:", consultationData);
     
     if (consultationData) {
+      // Add chat ID as user_id to link the consultation to this chat
+      consultationData.user_id = chatId.toString();
+      
       // Save consultation data
       consultationId = await saveConsultation(chatId, consultationData);
       console.log("Created consultation:", consultationId);
@@ -295,6 +326,9 @@ async function handleTelegramUpdate(update: any) {
     consultationData = await getConsultationForChat(chatId);
     if (consultationData) {
       consultationId = consultationData.id;
+      console.log("Retrieved existing consultation:", consultationId);
+    } else {
+      console.log("No consultation found for this chat");
     }
   }
 
@@ -305,8 +339,19 @@ async function handleTelegramUpdate(update: any) {
   await sendChatAction(chatId, "typing");
 
   try {
+    // Verify OpenAI API key is available
+    if (!OPENAI_API_KEY) {
+      console.error("OpenAI API key not configured");
+      await sendTelegramMessage(chatId, 
+        "Desculpe, não posso responder no momento pois minha configuração está incompleta. Contate o administrador."
+      );
+      return { ok: false, error: "OpenAI API key not configured" };
+    }
+    
     // Get response from OpenAI
+    console.log("Calling OpenAI API with consultation data:", consultationData);
     const aiResponse = await getOpenAIResponse(messageText, consultationData);
+    console.log("OpenAI API response:", aiResponse);
     
     // Send the response back to Telegram
     await sendTelegramMessage(chatId, aiResponse);
@@ -329,6 +374,7 @@ async function handleTelegramUpdate(update: any) {
 
 // Send message to Telegram
 async function sendTelegramMessage(chatId: number, text: string) {
+  console.log(`Sending message to ${chatId}: ${text.substring(0, 100)}...`);
   const response = await fetch(`${TELEGRAM_API}/sendMessage`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -345,11 +391,14 @@ async function sendTelegramMessage(chatId: number, text: string) {
     throw new Error(`Erro na API do Telegram: ${errorData.description}`);
   }
   
-  return await response.json();
+  const responseData = await response.json();
+  console.log("Telegram API response:", responseData);
+  return responseData;
 }
 
 // Send chat action to Telegram
 async function sendChatAction(chatId: number, action: string) {
+  console.log(`Sending chat action '${action}' to ${chatId}`);
   const response = await fetch(`${TELEGRAM_API}/sendChatAction`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -375,44 +424,48 @@ async function getOpenAIResponse(userMessage: string, consultationData: any | nu
     ? generateSystemPrompt(consultationData)
     : "Você é um consultor de criptomoedas para iniciantes. Responda de forma amigável, clara e educativa. Use linguagem simples e explique conceitos complexos de forma acessível. Forneça informações precisas sobre Bitcoin, Ethereum e outras criptomoedas populares. Ajude iniciantes com estratégias básicas, segurança e como evitar golpes. Não dê conselhos financeiros específicos ou garantias de investimento. Mantenha as respostas concisas com no máximo 3 parágrafos quando possível.";
 
-  console.log("Chamando API OpenAI com prompt:", systemPrompt);
+  console.log("Chamando API OpenAI com prompt:", systemPrompt.substring(0, 100) + "...");
   
-  const response = await fetch(OPENAI_API, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${OPENAI_API_KEY}`,
-    },
-    body: JSON.stringify({
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "system",
-          content: systemPrompt
-        },
-        { role: "user", content: userMessage }
-      ],
-      temperature: 0.7,
-      max_tokens: 800
-    }),
-  });
+  try {
+    const response = await fetch(OPENAI_API, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-4o",
+        messages: [
+          {
+            role: "system",
+            content: systemPrompt
+          },
+          { role: "user", content: userMessage }
+        ],
+        temperature: 0.7,
+        max_tokens: 800
+      }),
+    });
 
-  if (!response.ok) {
-    const errorData = await response.text();
-    console.error("OpenAI API error:", response.status, errorData);
-    throw new Error(`Erro na API do OpenAI: ${response.status}`);
-  }
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("OpenAI API error:", response.status, errorText);
+      throw new Error(`Erro na API do OpenAI: ${response.status}`);
+    }
 
-  const data = await response.json();
-  
-  if (!data.choices || data.choices.length === 0) {
-    console.error("OpenAI API returned invalid data:", data);
-    throw new Error("Falha na API do OpenAI: formato de resposta inválido");
+    const data = await response.json();
+    console.log("OpenAI API response status:", response.status);
+    
+    if (!data.choices || data.choices.length === 0) {
+      console.error("OpenAI API returned invalid data:", data);
+      throw new Error("Falha na API do OpenAI: formato de resposta inválido");
+    }
+    
+    return data.choices[0].message.content.trim();
+  } catch (error) {
+    console.error("Exception calling OpenAI API:", error);
+    throw error;
   }
-  
-  console.log("OpenAI response:", data.choices[0].message.content);
-  
-  return data.choices[0].message.content.trim();
 }
 
 // Set up webhook for Telegram
@@ -448,16 +501,21 @@ serve(async (req) => {
   }
 
   // Check for required env variables
-  if (!TELEGRAM_BOT_TOKEN || !OPENAI_API_KEY) {
+  if (!TELEGRAM_BOT_TOKEN) {
+    console.error("Missing TELEGRAM_BOT_TOKEN");
     return new Response(
       JSON.stringify({ 
-        error: "Missing environment variables. Please set TELEGRAM_BOT_TOKEN and OPENAI_API_KEY." 
+        error: "Missing environment variable TELEGRAM_BOT_TOKEN" 
       }),
       {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       }
     );
+  }
+  
+  if (!OPENAI_API_KEY) {
+    console.warn("Missing OPENAI_API_KEY - Bot will warn users but continue to handle setup requests");
   }
 
   const url = new URL(req.url);

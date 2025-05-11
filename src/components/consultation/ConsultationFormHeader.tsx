@@ -13,7 +13,7 @@ const ConsultationFormHeader: React.FC = () => {
           <div className="ml-3">
             <p className="text-sm text-blue-700">
               Nossa IA analisará suas respostas e fornecerá recomendações adaptadas ao seu nível de conhecimento, objetivos 
-              e situação financeira.
+              e situação financeira. Quanto mais detalhes você fornecer, mais personalizada será a sua consultoria.
             </p>
           </div>
         </div>
