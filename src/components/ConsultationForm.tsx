@@ -39,15 +39,7 @@ const ConsultationForm = () => {
     
     try {
       // Prepare data for Supabase
-      const consultationData: {
-        knowledge_level: string;
-        objective: string;
-        investment_amount: string;
-        has_exchange: boolean;
-        exchange_name: string | null;
-        has_wallet: boolean;
-        user_id?: string;
-      } = {
+      const consultationData = {
         knowledge_level: data.knowledgeLevel,
         objective: data.objective,
         investment_amount: data.investmentAmount,
@@ -55,15 +47,11 @@ const ConsultationForm = () => {
         exchange_name: data.hasExchange === "yes" ? data.exchangeName : null,
         has_wallet: data.hasWallet === "yes",
       };
-
-      // Try to get current user
-      const { data: sessionData } = await supabase.auth.getSession();
-      if (sessionData?.session?.user) {
-        consultationData.user_id = sessionData.session.user.id;
-      }
-
-      // Salvar os dados no Supabase e esperar pela resposta
-      const { error } = await supabase.from('consultations').insert(consultationData);
+      
+      // Aguardar a resposta da inserção no Supabase
+      const { error } = await supabase
+        .from('consultations')
+        .insert(consultationData);
       
       if (error) {
         console.error("Erro ao salvar consulta:", error);
@@ -74,42 +62,52 @@ const ConsultationForm = () => {
         });
       } else {
         console.log("Consulta salva com sucesso");
+        toast({
+          title: "Dados salvos com sucesso!",
+          description: "Suas informações foram registradas.",
+        });
       }
+      
+      // Construct Telegram message based on form data
+      let message = "Olá! Acabei de preencher o formulário e quero iniciar a consultoria.";
+      message += `\n\nMeu nível: ${getKnowledgeLabel(data.knowledgeLevel)}`;
+      message += `\nMeu objetivo: ${getObjectiveLabel(data.objective)}`;
+      message += `\nInvestimento mensal: ${getInvestmentLabel(data.investmentAmount)}`;
+      message += `\nTenho corretora: ${data.hasExchange === "yes" ? "Sim" : "Não"}`;
+      if (data.hasExchange === "yes" && data.exchangeName) {
+        message += ` (${data.exchangeName})`;
+      }
+      message += `\nTenho carteira: ${data.hasWallet === "yes" ? "Sim" : "Não"}`;
+
+      // Encode message for URL
+      const encodedMessage = encodeURIComponent(message);
+      
+      // Direct to user's Telegram bot using start parameter to pass form data
+      const telegramBotUrl = `https://t.me/CriptoBaseBot?start=${encodedMessage}`;
+      
+      toast({
+        title: "Formulário enviado com sucesso!",
+        description: "Você será redirecionado para o Telegram em instantes.",
+      });
+      
+      // Redirect to Telegram after a short delay
+      setTimeout(() => {
+        window.location.href = telegramBotUrl;
+      }, 1500);
     } catch (error) {
-      console.error("Erro ao salvar dados:", error);
+      console.error("Erro ao processar dados:", error);
       toast({
         title: "Erro ao processar dados",
         description: "Ocorreu um erro, mas continuaremos com o atendimento.",
         variant: "destructive",
       });
+      
+      // Fallback - tente redirecionar para o Telegram mesmo em caso de erro
+      const telegramBotUrl = "https://t.me/CriptoBaseBot";
+      setTimeout(() => {
+        window.location.href = telegramBotUrl;
+      }, 1500);
     }
-    
-    // Construct Telegram message based on form data
-    let message = "Olá! Acabei de preencher o formulário e quero iniciar a consultoria.";
-    message += `\n\nMeu nível: ${getKnowledgeLabel(data.knowledgeLevel)}`;
-    message += `\nMeu objetivo: ${getObjectiveLabel(data.objective)}`;
-    message += `\nInvestimento mensal: ${getInvestmentLabel(data.investmentAmount)}`;
-    message += `\nTenho corretora: ${data.hasExchange === "yes" ? "Sim" : "Não"}`;
-    if (data.hasExchange === "yes" && data.exchangeName) {
-      message += ` (${data.exchangeName})`;
-    }
-    message += `\nTenho carteira: ${data.hasWallet === "yes" ? "Sim" : "Não"}`;
-
-    // Encode message for URL
-    const encodedMessage = encodeURIComponent(message);
-    
-    // Direct to user's Telegram bot using start parameter to pass form data
-    const telegramBotUrl = `https://t.me/CriptoBaseBot?start=${encodedMessage}`;
-    
-    toast({
-      title: "Formulário enviado com sucesso!",
-      description: "Você será redirecionado para o Telegram em instantes.",
-    });
-    
-    // Redirect to Telegram after a short delay
-    setTimeout(() => {
-      window.location.href = telegramBotUrl;
-    }, 1500);
   };
 
   // Helper functions to get labels
@@ -140,8 +138,6 @@ const ConsultationForm = () => {
     };
     return map[value] || value;
   };
-
-  const watchHasExchange = form.watch("hasExchange");
 
   return (
     <div className="w-full max-w-2xl mx-auto p-6 rounded-xl crypto-card shadow-lg">
