@@ -1,11 +1,13 @@
 
 import React from "react";
+import { Link } from "react-router-dom";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Button } from "@/components/ui/button";
 
 const FAQSection: React.FC = () => {
   const faqs = [
@@ -43,6 +45,18 @@ const FAQSection: React.FC = () => {
             </AccordionItem>
           ))}
         </Accordion>
+        
+        <div className="mt-12 text-center">
+          <h3 className="text-xl font-semibold mb-4">Configurar Bot do Telegram</h3>
+          <p className="mb-4 text-gray-600">
+            Quer implementar um bot no Telegram para oferecer consultoria automática em criptomoedas?
+          </p>
+          <Link to="/bot-config">
+            <Button variant="outline" size="lg">
+              Acessar Configuração do Bot
+            </Button>
+          </Link>
+        </div>
       </div>
     </section>
   );
