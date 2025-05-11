@@ -109,6 +109,8 @@ async function getOpenAIResponse(userMessage: string): Promise<string> {
 
 // Set up webhook for Telegram
 async function setTelegramWebhook(webhookUrl: string) {
+  console.log(`Setting webhook to: ${webhookUrl}`);
+  
   const response = await fetch(`${TELEGRAM_API}/setWebhook`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -118,7 +120,9 @@ async function setTelegramWebhook(webhookUrl: string) {
     }),
   });
 
-  return await response.json();
+  const result = await response.json();
+  console.log("Webhook setup result:", result);
+  return result;
 }
 
 // Main handler
@@ -146,10 +150,13 @@ serve(async (req) => {
 
   const url = new URL(req.url);
   const path = url.pathname.split("/").pop();
+  
+  console.log(`Request path: ${url.pathname}, extracted path: ${path}`);
 
   try {
-    // For webhook setup
-    if (path === "setup" && req.method === "POST") {
+    // For webhook setup endpoint
+    if (path === "setup") {
+      console.log("Processing setup request");
       const { webhook_url } = await req.json();
       const result = await setTelegramWebhook(webhook_url);
       return new Response(
@@ -162,7 +169,7 @@ serve(async (req) => {
     }
     
     // For handling Telegram webhook updates
-    if (req.method === "POST") {
+    if (req.method === "POST" && path !== "setup") {
       const update = await req.json();
       const result = await handleTelegramUpdate(update);
       return new Response(
@@ -177,7 +184,13 @@ serve(async (req) => {
     // For testing if the function is working
     if (req.method === "GET") {
       return new Response(
-        JSON.stringify({ status: "Bot servidor está ativo! Configure o webhook do Telegram para começar." }),
+        JSON.stringify({ 
+          status: "Bot servidor está ativo! Configure o webhook do Telegram para começar.",
+          environment: {
+            telegram_token: TELEGRAM_BOT_TOKEN ? "Configurado" : "Não configurado",
+            openai_key: OPENAI_API_KEY ? "Configurado" : "Não configurado"
+          }
+        }),
         {
           status: 200,
           headers: { ...corsHeaders, "Content-Type": "application/json" },

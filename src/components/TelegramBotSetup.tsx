@@ -23,9 +23,9 @@ const TelegramBotSetup: React.FC = () => {
 
     setIsLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke("crypto-telegram-bot", {
+      // Call the setup endpoint directly
+      const { data, error } = await supabase.functions.invoke("crypto-telegram-bot/setup", {
         body: { 
-          endpoint: "setup",
           webhook_url: webhookUrl 
         },
       });
@@ -65,13 +65,13 @@ const TelegramBotSetup: React.FC = () => {
             </label>
             <Input
               id="webhook-url"
-              placeholder="https://sua-url-publica.com/crypto-telegram-bot"
+              placeholder="https://jmikifhihovkkcmdgjdd.functions.supabase.co/crypto-telegram-bot"
               value={webhookUrl}
               onChange={(e) => setWebhookUrl(e.target.value)}
             />
             <p className="text-xs text-gray-500">
               Esta deve ser a URL pública da sua função Supabase.
-              Exemplo: https://[PROJECT_REF].functions.supabase.co/crypto-telegram-bot
+              Exemplo: https://jmikifhihovkkcmdgjdd.functions.supabase.co/crypto-telegram-bot
             </p>
           </div>
         </div>
