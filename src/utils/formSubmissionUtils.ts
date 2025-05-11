@@ -1,7 +1,6 @@
 
 import { FormValues } from "@/components/consultation/types";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 
 // Helper functions to get labels
 export const getKnowledgeLabel = (value: string): string => {
@@ -43,12 +42,18 @@ export const saveConsultationData = async (data: FormValues) => {
     has_wallet: data.hasWallet === "yes",
   };
   
-  return await supabase.from('consultations').insert(consultationData);
+  return await supabase.from('consultations').insert(consultationData).select('id').single();
 };
 
 // Create Telegram message from form data
-export const createTelegramMessage = (data: FormValues): string => {
+export const createTelegramMessage = (data: FormValues, consultationId?: string): string => {
   let message = "Olá! Acabei de preencher o formulário e quero iniciar a consultoria.";
+  
+  // Add consultation ID if available
+  if (consultationId) {
+    message += `\n\nID da consulta: ${consultationId}`;
+  }
+  
   message += `\n\nMeu nível: ${getKnowledgeLabel(data.knowledgeLevel)}`;
   message += `\nMeu objetivo: ${getObjectiveLabel(data.objective)}`;
   message += `\nInvestimento mensal: ${getInvestmentLabel(data.investmentAmount)}`;

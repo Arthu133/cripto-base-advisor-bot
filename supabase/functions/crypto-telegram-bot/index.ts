@@ -29,7 +29,32 @@ const corsHeaders = {
 
 // Get consultation data from Telegram start parameter
 async function getConsultationDataFromMessage(message: string): Promise<any | null> {
-  // Extract form data from message
+  // Extract consultation ID from message
+  const consultationIdMatch = message.match(/ID da consulta: ([a-f0-9-]+)/i);
+  
+  if (consultationIdMatch && consultationIdMatch[1]) {
+    const consultationId = consultationIdMatch[1];
+    console.log("Found consultation ID in message:", consultationId);
+    
+    // Get consultation data directly from database using ID
+    const { data: consultation, error } = await supabase
+      .from('consultations')
+      .select('*')
+      .eq('id', consultationId)
+      .single();
+    
+    if (error) {
+      console.error("Error fetching consultation by ID:", error);
+      return null;
+    }
+    
+    if (consultation) {
+      console.log("Retrieved consultation data:", consultation);
+      return consultation;
+    }
+  }
+  
+  // Fallback to old method if consultation ID not found
   const knowledgeLevelMatch = message.match(/nível: ([^\n]+)/);
   const objectiveMatch = message.match(/objetivo: ([^\n]+)/);
   const investmentMatch = message.match(/Investimento mensal: ([^\n]+)/);
@@ -125,7 +150,34 @@ async function saveChatMessage(chatId: number, consultationId: string | null, me
 async function getConsultationForChat(chatId: number): Promise<any | null> {
   try {
     console.log(`Getting latest consultation for chat ${chatId}`);
-    // First try to find consultation directly linked to this chat ID (as user_id)
+    
+    // Try checking chat_messages first to find the consultation ID
+    const { data: chatMessage, error: chatError } = await supabase
+      .from('chat_messages')
+      .select('consultation_id')
+      .eq('telegram_chat_id', chatId)
+      .is('consultation_id', 'not.null')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (!chatError && chatMessage && chatMessage.consultation_id) {
+      console.log("Found consultation ID via chat_messages:", chatMessage.consultation_id);
+      
+      // Then get the consultation data using the ID
+      const { data: consultation, error: consultationError } = await supabase
+        .from('consultations')
+        .select('*')
+        .eq('id', chatMessage.consultation_id)
+        .single();
+        
+      if (!consultationError && consultation) {
+        console.log("Retrieved consultation by ID:", consultation);
+        return consultation;
+      }
+    }
+    
+    // Fallback: try to find consultation directly linked to this chat ID (as user_id)
     const { data: directConsultation, error: directError } = await supabase
       .from('consultations')
       .select('*')
@@ -139,35 +191,8 @@ async function getConsultationForChat(chatId: number): Promise<any | null> {
       return directConsultation;
     }
     
-    // If not found, try checking chat_messages
-    const { data: chatMessage, error: chatError } = await supabase
-      .from('chat_messages')
-      .select('consultation_id')
-      .eq('telegram_chat_id', chatId)
-      .is('consultation_id', 'not.null')
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    if (chatError || !chatMessage || !chatMessage.consultation_id) {
-      console.log("No consultation found for chat");
-      return null;
-    }
-    
-    // Then get the consultation data
-    const { data: consultation, error: consultationError } = await supabase
-      .from('consultations')
-      .select('*')
-      .eq('id', chatMessage.consultation_id)
-      .single();
-      
-    if (consultationError || !consultation) {
-      console.log("Error getting consultation details:", consultationError);
-      return null;
-    }
-
-    console.log("Found consultation via chat_messages:", consultation);
-    return consultation;
+    console.log("No consultation found for chat");
+    return null;
   } catch (error) {
     console.error("Exception while getting consultation for chat:", error);
     return null;
@@ -263,12 +288,28 @@ async function handleTelegramUpdate(update: any) {
     console.log("Extracted consultation data:", consultationData);
     
     if (consultationData) {
-      // Add chat ID as user_id to link the consultation to this chat
-      consultationData.user_id = chatId.toString();
-      
-      // Save consultation data
-      consultationId = await saveConsultation(chatId, consultationData);
-      console.log("Created consultation:", consultationId);
+      // If consultationData already has an id (from direct lookup), use it
+      if (consultationData.id) {
+        consultationId = consultationData.id;
+        console.log("Using existing consultation ID:", consultationId);
+        
+        // Update the user_id field to link this consultation with this chat
+        const { error } = await supabase
+          .from('consultations')
+          .update({ user_id: chatId.toString() })
+          .eq('id', consultationId);
+          
+        if (error) {
+          console.error("Error updating consultation user_id:", error);
+        }
+      } else {
+        // Add chat ID as user_id to link the consultation to this chat
+        consultationData.user_id = chatId.toString();
+        
+        // Save consultation data
+        consultationId = await saveConsultation(chatId, consultationData);
+        console.log("Created new consultation:", consultationId);
+      }
       
       // Generate personalized welcome message
       let welcomeMessage = "👋 Olá! Sou seu consultor de criptomoedas personalizado. Li suas informações e estou pronto para ajudar!\n\n";

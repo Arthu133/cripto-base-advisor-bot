@@ -11,7 +11,7 @@ export function useConsultationSubmit() {
     
     try {
       // Save data to Supabase
-      const { error } = await saveConsultationData(data);
+      const { data: consultation, error } = await saveConsultationData(data);
       
       if (error) {
         console.error("Erro ao salvar consulta:", error);
@@ -21,15 +21,16 @@ export function useConsultationSubmit() {
           variant: "destructive",
         });
       } else {
-        console.log("Consulta salva com sucesso");
+        console.log("Consulta salva com sucesso, ID:", consultation.id);
         toast({
           title: "Dados salvos com sucesso!",
           description: "Suas informações foram registradas.",
         });
       }
       
-      // Create and encode message for Telegram
-      const message = createTelegramMessage(data);
+      // Create and encode message for Telegram, including consultation ID
+      const consultationId = consultation?.id;
+      const message = createTelegramMessage(data, consultationId);
       const encodedMessage = encodeURIComponent(message);
       
       // Direct to Telegram bot using start parameter to pass form data
