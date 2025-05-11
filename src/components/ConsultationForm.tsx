@@ -62,17 +62,26 @@ const ConsultationForm = () => {
         consultationData.user_id = sessionData.session.user.id;
       }
 
-      // For analytics only - we don't wait for this to complete
-      supabase.from('consultations').insert(consultationData).then(({error}) => {
-        if (error) {
-          console.error("Error saving consultation:", error);
-        } else {
-          console.log("Consultation saved successfully");
-        }
-      });
+      // Salvar os dados no Supabase e esperar pela resposta
+      const { error } = await supabase.from('consultations').insert(consultationData);
+      
+      if (error) {
+        console.error("Erro ao salvar consulta:", error);
+        toast({
+          title: "Erro ao salvar dados",
+          description: "Não foi possível salvar seus dados, mas continuaremos com o atendimento.",
+          variant: "destructive",
+        });
+      } else {
+        console.log("Consulta salva com sucesso");
+      }
     } catch (error) {
-      console.error("Error saving data:", error);
-      // We continue anyway as the data will be sent in the Telegram message
+      console.error("Erro ao salvar dados:", error);
+      toast({
+        title: "Erro ao processar dados",
+        description: "Ocorreu um erro, mas continuaremos com o atendimento.",
+        variant: "destructive",
+      });
     }
     
     // Construct Telegram message based on form data
