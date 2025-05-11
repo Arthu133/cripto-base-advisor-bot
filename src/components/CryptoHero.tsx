@@ -24,7 +24,7 @@ const CryptoHero: React.FC = () => {
         </h1>
         
         <p className="text-xl max-w-3xl text-center mb-10 text-gray-700">
-          Consultoria personalizada e automática para iniciantes. Responda algumas perguntas e receba orientação especializada diretamente no seu WhatsApp.
+          Consultoria personalizada e automática para iniciantes. Responda algumas perguntas e receba orientação especializada diretamente no seu Telegram.
         </p>
         
         <div className="flex flex-col sm:flex-row gap-4">

@@ -14,8 +14,8 @@ const FAQSection: React.FC = () => {
       answer: "Não, a CriptoBase foi desenvolvida especialmente para iniciantes. Nossa IA vai guiar você desde o básico, adaptando as explicações ao seu nível de conhecimento."
     },
     {
-      question: "Como funciona a consultoria pelo WhatsApp?",
-      answer: "Após preencher o formulário, você será direcionado ao WhatsApp onde nossa IA estará pronta para responder suas dúvidas com base nas informações que você forneceu."
+      question: "Como funciona a consultoria pelo Telegram?",
+      answer: "Após preencher o formulário, você será direcionado ao Telegram onde nossa IA estará pronta para responder suas dúvidas com base nas informações que você forneceu."
     },
     {
       question: "Quanto vou precisar investir para começar?",

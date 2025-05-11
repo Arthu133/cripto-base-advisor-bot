@@ -36,7 +36,7 @@ const ConsultationForm = () => {
   const onSubmit = (data: FormValues) => {
     console.log("Form data:", data);
     
-    // Construct WhatsApp message based on form data
+    // Construct Telegram message based on form data
     let message = "Olá! Acabei de preencher o formulário e quero iniciar a consultoria.";
     message += `\n\nMeu nível: ${getKnowledgeLabel(data.knowledgeLevel)}`;
     message += `\nMeu objetivo: ${getObjectiveLabel(data.objective)}`;
@@ -50,7 +50,7 @@ const ConsultationForm = () => {
     // Encode message for URL
     const encodedMessage = encodeURIComponent(message);
     
-    // Direct to Telegram bot instead of WhatsApp
+    // Direct to user's Telegram bot using start parameter to pass form data
     const telegramBotUrl = `https://t.me/CriptoBaseBot?start=${encodedMessage}`;
     
     toast({
