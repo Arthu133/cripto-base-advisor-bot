@@ -9,7 +9,77 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      chat_messages: {
+        Row: {
+          consultation_id: string | null
+          created_at: string | null
+          id: string
+          is_from_user: boolean | null
+          message_text: string
+          telegram_chat_id: number
+        }
+        Insert: {
+          consultation_id?: string | null
+          created_at?: string | null
+          id?: string
+          is_from_user?: boolean | null
+          message_text: string
+          telegram_chat_id: number
+        }
+        Update: {
+          consultation_id?: string | null
+          created_at?: string | null
+          id?: string
+          is_from_user?: boolean | null
+          message_text?: string
+          telegram_chat_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_consultation_id_fkey"
+            columns: ["consultation_id"]
+            isOneToOne: false
+            referencedRelation: "consultations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      consultations: {
+        Row: {
+          created_at: string | null
+          exchange_name: string | null
+          has_exchange: boolean
+          has_wallet: boolean
+          id: string
+          investment_amount: string
+          knowledge_level: string
+          objective: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          exchange_name?: string | null
+          has_exchange?: boolean
+          has_wallet?: boolean
+          id?: string
+          investment_amount: string
+          knowledge_level: string
+          objective: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          exchange_name?: string | null
+          has_exchange?: boolean
+          has_wallet?: boolean
+          id?: string
+          investment_amount?: string
+          knowledge_level?: string
+          objective?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

@@ -7,6 +7,7 @@ import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import FormQuestion from "./FormQuestion";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const formSchema = z.object({
   knowledgeLevel: z.enum(["beginner", "intermediate", "advanced"]),
@@ -33,8 +34,38 @@ const ConsultationForm = () => {
     },
   });
 
-  const onSubmit = (data: FormValues) => {
+  const onSubmit = async (data: FormValues) => {
     console.log("Form data:", data);
+    
+    try {
+      // Prepare data for Supabase
+      const consultationData = {
+        knowledge_level: data.knowledgeLevel,
+        objective: data.objective,
+        investment_amount: data.investmentAmount,
+        has_exchange: data.hasExchange === "yes",
+        exchange_name: data.hasExchange === "yes" ? data.exchangeName : null,
+        has_wallet: data.hasWallet === "yes",
+      };
+
+      // Try to get current user
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (sessionData?.session?.user) {
+        consultationData.user_id = sessionData.session.user.id;
+      }
+
+      // For analytics only - we don't wait for this to complete
+      supabase.from('consultations').insert(consultationData).then(({error}) => {
+        if (error) {
+          console.error("Error saving consultation:", error);
+        } else {
+          console.log("Consultation saved successfully");
+        }
+      });
+    } catch (error) {
+      console.error("Error saving data:", error);
+      // We continue anyway as the data will be sent in the Telegram message
+    }
     
     // Construct Telegram message based on form data
     let message = "Olá! Acabei de preencher o formulário e quero iniciar a consultoria.";

@@ -15,7 +15,7 @@ const FAQSection: React.FC = () => {
     },
     {
       question: "Como funciona a consultoria pelo Telegram?",
-      answer: "Após preencher o formulário, você será direcionado ao Telegram onde nossa IA estará pronta para responder suas dúvidas com base nas informações que você forneceu."
+      answer: "Após preencher o formulário, você será direcionado ao Telegram onde nossa IA estará pronta para responder suas dúvidas com base nas informações que você forneceu. Seu histórico de consulta ficará salvo para futuras referências."
     },
     {
       question: "Quanto vou precisar investir para começar?",
@@ -28,6 +28,10 @@ const FAQSection: React.FC = () => {
     {
       question: "É seguro investir em criptomoedas?",
       answer: "Como todo investimento, criptomoedas possuem riscos. Nossa consultoria foca em práticas seguras e estratégias de gerenciamento de risco para iniciantes, ajudando você a evitar armadilhas comuns."
+    },
+    {
+      question: "Minhas informações ficam salvas para consultas futuras?",
+      answer: "Sim, salvamos suas informações básicas e histórico de conversa para que o assistente possa continuar a conversa de onde paramos e fornecer uma experiência personalizada, adaptada ao seu perfil."
     }
   ];
 
