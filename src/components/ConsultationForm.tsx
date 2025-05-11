@@ -39,7 +39,15 @@ const ConsultationForm = () => {
     
     try {
       // Prepare data for Supabase
-      const consultationData = {
+      const consultationData: {
+        knowledge_level: string;
+        objective: string;
+        investment_amount: string;
+        has_exchange: boolean;
+        exchange_name: string | null;
+        has_wallet: boolean;
+        user_id?: string;
+      } = {
         knowledge_level: data.knowledgeLevel,
         objective: data.objective,
         investment_amount: data.investmentAmount,
