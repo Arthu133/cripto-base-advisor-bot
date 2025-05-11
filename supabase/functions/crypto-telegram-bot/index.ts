@@ -329,7 +329,7 @@ async function handleTelegramUpdate(update: any) {
 
 // Send message to Telegram
 async function sendTelegramMessage(chatId: number, text: string) {
-  await fetch(`${TELEGRAM_API}/sendMessage`, {
+  const response = await fetch(`${TELEGRAM_API}/sendMessage`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -338,11 +338,19 @@ async function sendTelegramMessage(chatId: number, text: string) {
       parse_mode: "Markdown",
     }),
   });
+  
+  if (!response.ok) {
+    const errorData = await response.json();
+    console.error("Telegram API error:", errorData);
+    throw new Error(`Erro na API do Telegram: ${errorData.description}`);
+  }
+  
+  return await response.json();
 }
 
 // Send chat action to Telegram
 async function sendChatAction(chatId: number, action: string) {
-  await fetch(`${TELEGRAM_API}/sendChatAction`, {
+  const response = await fetch(`${TELEGRAM_API}/sendChatAction`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -350,14 +358,25 @@ async function sendChatAction(chatId: number, action: string) {
       action: action,
     }),
   });
+  
+  if (!response.ok) {
+    const errorData = await response.json();
+    console.error("Telegram API error (chat action):", errorData);
+  }
 }
 
 // Get response from OpenAI
 async function getOpenAIResponse(userMessage: string, consultationData: any | null): Promise<string> {
+  if (!OPENAI_API_KEY) {
+    throw new Error("OPENAI_API_KEY não configurada");
+  }
+
   const systemPrompt = consultationData 
     ? generateSystemPrompt(consultationData)
     : "Você é um consultor de criptomoedas para iniciantes. Responda de forma amigável, clara e educativa. Use linguagem simples e explique conceitos complexos de forma acessível. Forneça informações precisas sobre Bitcoin, Ethereum e outras criptomoedas populares. Ajude iniciantes com estratégias básicas, segurança e como evitar golpes. Não dê conselhos financeiros específicos ou garantias de investimento. Mantenha as respostas concisas com no máximo 3 parágrafos quando possível.";
 
+  console.log("Chamando API OpenAI com prompt:", systemPrompt);
+  
   const response = await fetch(OPENAI_API, {
     method: "POST",
     headers: {
@@ -378,12 +397,20 @@ async function getOpenAIResponse(userMessage: string, consultationData: any | nu
     }),
   });
 
+  if (!response.ok) {
+    const errorData = await response.text();
+    console.error("OpenAI API error:", response.status, errorData);
+    throw new Error(`Erro na API do OpenAI: ${response.status}`);
+  }
+
   const data = await response.json();
   
   if (!data.choices || data.choices.length === 0) {
-    console.error("OpenAI API error:", data);
-    throw new Error("Falha na API do OpenAI");
+    console.error("OpenAI API returned invalid data:", data);
+    throw new Error("Falha na API do OpenAI: formato de resposta inválido");
   }
+  
+  console.log("OpenAI response:", data.choices[0].message.content);
   
   return data.choices[0].message.content.trim();
 }
@@ -391,6 +418,10 @@ async function getOpenAIResponse(userMessage: string, consultationData: any | nu
 // Set up webhook for Telegram
 async function setTelegramWebhook(webhookUrl: string) {
   console.log(`Setting webhook to: ${webhookUrl}`);
+  
+  if (!TELEGRAM_BOT_TOKEN) {
+    throw new Error("TELEGRAM_BOT_TOKEN não configurado");
+  }
   
   const response = await fetch(`${TELEGRAM_API}/setWebhook`, {
     method: "POST",
@@ -452,6 +483,7 @@ serve(async (req) => {
     // For handling Telegram webhook updates
     if (req.method === "POST" && path !== "setup") {
       const update = await req.json();
+      console.log("Received Telegram update:", JSON.stringify(update));
       const result = await handleTelegramUpdate(update);
       return new Response(
         JSON.stringify(result),
