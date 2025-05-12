@@ -12,7 +12,7 @@ const HowItWorks: React.FC = () => {
     {
       icon: <MessageSquare className="h-10 w-10" />,
       title: "Atendimento no Telegram",
-      description: "Você será redirecionado para o Telegram onde estarei pronto para responder suas dúvidas.",
+      description: "Você será redirecionado para o Telegram onde eu, Arthur Dias, estarei pronto para responder suas dúvidas.",
     },
     {
       icon: <BookOpen className="h-10 w-10" />,

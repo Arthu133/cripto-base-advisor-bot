@@ -12,7 +12,7 @@ const ConsultationFormHeader: React.FC = () => {
         <div className="flex">
           <div className="ml-3">
             <p className="text-sm text-blue-700">
-              Analisarei suas respostas e fornecerei recomendações adaptadas ao seu nível de conhecimento, objetivos 
+              Eu, Arthur Dias, analisarei suas respostas e fornecerei recomendações adaptadas ao seu nível de conhecimento, objetivos 
               e situação financeira. Quanto mais detalhes você fornecer, mais personalizada será a sua consultoria.
             </p>
           </div>

@@ -8,9 +8,9 @@ const Footer: React.FC = () => {
       <div className="container mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
-            <h3 className="text-2xl font-bold mb-4">CriptoBase</h3>
+            <h3 className="text-2xl font-bold mb-4">GuiaCripto</h3>
             <p className="text-gray-300">
-              Consultoria automatizada para iniciantes no mundo das criptomoedas.
+              Consultoria personalizada para iniciantes no mundo das criptomoedas por Arthur Dias.
             </p>
           </div>
           
@@ -36,7 +36,7 @@ const Footer: React.FC = () => {
         <Separator className="my-8 bg-gray-700" />
         
         <div className="text-center text-gray-400">
-          <p>&copy; {new Date().getFullYear()} CriptoBase. Todos os direitos reservados.</p>
+          <p>&copy; {new Date().getFullYear()} GuiaCripto por Arthur Dias. Todos os direitos reservados.</p>
           <p className="text-xs mt-2">
             Este site não oferece aconselhamento financeiro. Consulte um profissional antes de investir.
           </p>
