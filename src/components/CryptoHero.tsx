@@ -47,10 +47,10 @@ const CryptoHero: React.FC = () => {
         {/* Floating crypto icons */}
         <div className="mt-16 relative w-full max-w-3xl">
           <div className="absolute -top-8 left-10 w-16 h-16 animate-float">
-            <img src="public/bitcoin-btc-logo.png" alt="Bitcoin" className="w-full h-full object-contain" />
+            <img src="/bitcoin-btc-logo.png" alt="Bitcoin" className="w-full h-full object-contain" />
           </div>
           <div className="absolute -top-8 right-20 w-14 h-14 animate-float" style={{ animationDelay: "1s" }}>
-            <img src="public/ethereum-eth-logo.png" alt="Ethereum" className="w-full h-full object-contain" />
+            <img src="/ethereum-eth-logo.png" alt="Ethereum" className="w-full h-full object-contain" />
           </div>
         </div>
       </div>
