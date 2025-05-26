@@ -10,7 +10,7 @@ const ConsultationSubmitButton: React.FC = () => {
       className="w-full py-6 text-lg font-medium mt-6 bg-gradient-crypto hover:opacity-90 transition-opacity"
     >
       <ArrowRight className="mr-2 h-5 w-5" />
-      Continuar para Pagamento
+      Começar sua revolução financeira
     </Button>
   );
 };
