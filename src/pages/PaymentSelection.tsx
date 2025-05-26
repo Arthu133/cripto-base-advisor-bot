@@ -107,7 +107,7 @@ const PaymentSelection = () => {
               </li>
               <li className="flex items-center">
                 <Check className="h-5 w-5 text-green-500 mr-3" />
-                <span>Suporte direto no Telegram</span>
+                <span>Suporte direto no Whatsapp</span>
               </li>
               <li className="flex items-center">
                 <Check className="h-5 w-5 text-green-500 mr-3" />
@@ -150,7 +150,7 @@ const PaymentSelection = () => {
               </li>
               <li className="flex items-center">
                 <Check className="h-5 w-5 text-green-500 mr-3" />
-                <span>Suporte direto no Telegram</span>
+                <span>Suporte direto no Whatsapp</span>
               </li>
               <li className="flex items-center">
                 <Check className="h-5 w-5 text-green-500 mr-3" />

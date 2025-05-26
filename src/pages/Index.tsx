@@ -28,7 +28,7 @@ const Index = () => {
             Preencha e Receba sua Consultoria
           </h2>
           <p className="text-xl text-center max-w-2xl mx-auto mb-12 text-gray-600">
-            Preencha o formulário abaixo e comece agora sua jornada no mundo cripto com um suporte personalizado de Arthur Dias direto no Telegram!
+            Preencha o formulário abaixo e comece agora sua jornada no mundo cripto com um suporte personalizado de Arthur Dias direto no Whatsapp!
           </p>
           <ConsultationForm />
         </div>
