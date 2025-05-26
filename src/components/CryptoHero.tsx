@@ -52,7 +52,7 @@ const CryptoHero: React.FC = () => {
           <div className="absolute -top-8 right-20 w-14 h-14 animate-float" style={{ animationDelay: "1s" }}>
             <img src="public/ethereum-eth-logo.png" alt="Ethereum" className="w-full h-full object-contain" />
           </div>
-          <div className="absolute -bottom-4 right-20 w-12 h-12 animate-float" style={{ animationDelay: "1.5s" }}>
+          <div className="absolute -bottom-4 right-120 w-12 h-12 animate-float" style={{ animationDelay: "1.5s" }}>
             <img src="public/solana-sol-logo.png" alt="Solana" className="w-full h-full object-contain" />
           </div>
         </div>
