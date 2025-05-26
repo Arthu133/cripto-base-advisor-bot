@@ -13,12 +13,15 @@ const ConsultationForm = () => {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      fullName: "",
+      mainPain: "",
       knowledgeLevel: "beginner",
       objective: "basics",
       investmentAmount: "lessThan100",
       hasExchange: "no",
       exchangeName: "",
       hasWallet: "no",
+      paymentType: "monthly",
     },
   });
 

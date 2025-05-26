@@ -1,7 +1,7 @@
 
 import { useToast } from '@/hooks/use-toast';
 import { FormValues } from '@/components/consultation/types';
-import { createTelegramMessage, saveConsultationData } from '@/utils/formSubmissionUtils';
+import { supabase } from '@/integrations/supabase/client';
 
 export function useConsultationSubmit() {
   const { toast } = useToast();
@@ -10,54 +10,36 @@ export function useConsultationSubmit() {
     console.log("Form data:", data);
     
     try {
-      // Save data to Supabase
-      const { data: consultation, error } = await saveConsultationData(data);
-      
-      if (error) {
-        console.error("Erro ao salvar consulta:", error);
-        toast({
-          title: "Erro ao salvar dados",
-          description: "Não foi possível salvar seus dados, mas continuaremos com o atendimento.",
-          variant: "destructive",
-        });
-      } else {
-        console.log("Consulta salva com sucesso, ID:", consultation.id);
-        toast({
-          title: "Dados salvos com sucesso!",
-          description: "Suas informações foram registradas.",
-        });
-      }
-      
-      // Create and encode message for Telegram, including consultation ID
-      const consultationId = consultation?.id;
-      const message = createTelegramMessage(data, consultationId);
-      const encodedMessage = encodeURIComponent(message);
-      
-      // Direct to Telegram bot using start parameter to pass form data
-      const telegramBotUrl = `https://t.me/CriptoBaseBot?start=${encodedMessage}`;
-      
-      toast({
-        title: "Formulário enviado com sucesso!",
-        description: "Você será redirecionado para o Telegram em instantes.",
+      // Criar sessão de checkout no Stripe
+      const { data: checkoutData, error: checkoutError } = await supabase.functions.invoke('create-checkout', {
+        body: {
+          paymentType: data.paymentType,
+          formData: data
+        }
       });
-      
-      // Redirect to Telegram after a short delay
-      setTimeout(() => {
-        window.location.href = telegramBotUrl;
-      }, 1500);
+
+      if (checkoutError) {
+        throw new Error(checkoutError.message);
+      }
+
+      if (checkoutData?.url) {
+        toast({
+          title: "Redirecionando para pagamento",
+          description: "Você será redirecionado para completar o pagamento.",
+        });
+
+        // Redirecionar para o Stripe Checkout
+        window.location.href = checkoutData.url;
+      } else {
+        throw new Error("URL de checkout não recebida");
+      }
     } catch (error) {
-      console.error("Erro ao processar dados:", error);
+      console.error("Erro ao processar pagamento:", error);
       toast({
-        title: "Erro ao processar dados",
-        description: "Ocorreu um erro, mas continuaremos com o atendimento.",
+        title: "Erro ao processar pagamento",
+        description: "Ocorreu um erro ao processar seu pagamento. Tente novamente.",
         variant: "destructive",
       });
-      
-      // Fallback - redirect to Telegram even in case of error
-      const telegramBotUrl = "https://t.me/CriptoBaseBot";
-      setTimeout(() => {
-        window.location.href = telegramBotUrl;
-      }, 1500);
     }
   };
 

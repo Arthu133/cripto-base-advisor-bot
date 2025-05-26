@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import BotConfig from "./pages/BotConfig";
+import PaymentSuccess from "./pages/PaymentSuccess";
 import "./App.css";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -13,6 +14,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/bot-config" element={<BotConfig />} />
+        <Route path="/payment-success" element={<PaymentSuccess />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <Toaster />

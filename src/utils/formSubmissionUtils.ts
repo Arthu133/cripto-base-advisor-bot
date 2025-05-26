@@ -31,6 +31,14 @@ export const getInvestmentLabel = (value: string): string => {
   return map[value] || value;
 };
 
+export const getPaymentTypeLabel = (value: string): string => {
+  const map: Record<string, string> = {
+    monthly: "Pagamento Único - R$ 17,90 (1 mês)",
+    subscription: "Assinatura Mensal - R$ 7,90/mês",
+  };
+  return map[value] || value;
+};
+
 // Save consultation data to Supabase
 export const saveConsultationData = async (data: FormValues) => {
   const consultationData = {
@@ -45,23 +53,26 @@ export const saveConsultationData = async (data: FormValues) => {
   return await supabase.from('consultations').insert(consultationData).select('id').single();
 };
 
-// Create Telegram message from form data
+// Create message from form data
 export const createTelegramMessage = (data: FormValues, consultationId?: string): string => {
-  let message = "Olá! Acabei de preencher o formulário e quero iniciar a consultoria.";
+  let message = `*DADOS DA CONSULTORIA PAGA*\n`;
   
   // Add consultation ID if available
   if (consultationId) {
-    message += `\n\nID da consulta: ${consultationId}`;
+    message += `ID da consulta: ${consultationId}\n`;
   }
   
-  message += `\n\nMeu nível: ${getKnowledgeLabel(data.knowledgeLevel)}`;
-  message += `\nMeu objetivo: ${getObjectiveLabel(data.objective)}`;
-  message += `\nInvestimento mensal: ${getInvestmentLabel(data.investmentAmount)}`;
-  message += `\nTenho corretora: ${data.hasExchange === "yes" ? "Sim" : "Não"}`;
+  message += `\n*Nome:* ${data.fullName}`;
+  message += `\n*Maior Dor:* ${data.mainPain}`;
+  message += `\n*Nível de Conhecimento:* ${getKnowledgeLabel(data.knowledgeLevel)}`;
+  message += `\n*Objetivo:* ${getObjectiveLabel(data.objective)}`;
+  message += `\n*Investimento Mensal:* ${getInvestmentLabel(data.investmentAmount)}`;
+  message += `\n*Tem Corretora:* ${data.hasExchange === "yes" ? "Sim" : "Não"}`;
   if (data.hasExchange === "yes" && data.exchangeName) {
     message += ` (${data.exchangeName})`;
   }
-  message += `\nTenho carteira: ${data.hasWallet === "yes" ? "Sim" : "Não"}`;
+  message += `\n*Tem Carteira:* ${data.hasWallet === "yes" ? "Sim" : "Não"}`;
+  message += `\n*Plano Escolhido:* ${getPaymentTypeLabel(data.paymentType)}`;
   
   return message;
 };
