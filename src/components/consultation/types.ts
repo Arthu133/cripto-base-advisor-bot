@@ -10,7 +10,6 @@ export const formSchema = z.object({
   hasExchange: z.enum(["yes", "no"]),
   exchangeName: z.string().optional(),
   hasWallet: z.enum(["yes", "no"]),
-  paymentType: z.enum(["monthly", "subscription"]),
 });
 
 export type FormValues = z.infer<typeof formSchema>;

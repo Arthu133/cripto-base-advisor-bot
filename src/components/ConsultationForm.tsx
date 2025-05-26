@@ -21,7 +21,6 @@ const ConsultationForm = () => {
       hasExchange: "no",
       exchangeName: "",
       hasWallet: "no",
-      paymentType: "monthly",
     },
   });
 

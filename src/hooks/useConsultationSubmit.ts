@@ -1,43 +1,31 @@
 
 import { useToast } from '@/hooks/use-toast';
 import { FormValues } from '@/components/consultation/types';
-import { supabase } from '@/integrations/supabase/client';
+import { useNavigate } from 'react-router-dom';
 
 export function useConsultationSubmit() {
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleSubmit = async (data: FormValues) => {
     console.log("Form data:", data);
     
     try {
-      // Criar sessão de checkout no Stripe
-      const { data: checkoutData, error: checkoutError } = await supabase.functions.invoke('create-checkout', {
-        body: {
-          paymentType: data.paymentType,
-          formData: data
-        }
+      // Armazenar dados do formulário no localStorage para usar na próxima página
+      localStorage.setItem('consultationFormData', JSON.stringify(data));
+      
+      toast({
+        title: "Formulário enviado!",
+        description: "Agora escolha seu plano de pagamento.",
       });
 
-      if (checkoutError) {
-        throw new Error(checkoutError.message);
-      }
-
-      if (checkoutData?.url) {
-        toast({
-          title: "Redirecionando para pagamento",
-          description: "Você será redirecionado para completar o pagamento.",
-        });
-
-        // Redirecionar para o Stripe Checkout
-        window.location.href = checkoutData.url;
-      } else {
-        throw new Error("URL de checkout não recebida");
-      }
+      // Redirecionar para página de seleção de pagamento
+      navigate('/payment-selection');
     } catch (error) {
-      console.error("Erro ao processar pagamento:", error);
+      console.error("Erro ao processar formulário:", error);
       toast({
-        title: "Erro ao processar pagamento",
-        description: "Ocorreu um erro ao processar seu pagamento. Tente novamente.",
+        title: "Erro ao processar formulário",
+        description: "Ocorreu um erro. Tente novamente.",
         variant: "destructive",
       });
     }

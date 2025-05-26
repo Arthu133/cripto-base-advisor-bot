@@ -81,16 +81,6 @@ const ConsultationFormQuestions: React.FC<ConsultationFormQuestionsProps> = ({ c
           { value: "no", label: "Não" },
         ]}
       />
-
-      <FormQuestion
-        control={control}
-        name="paymentType"
-        label="8. Escolha seu plano de consultoria:"
-        options={[
-          { value: "monthly", label: "Pagamento Único - R$ 17,90 (1 mês de acesso)" },
-          { value: "subscription", label: "Assinatura Mensal - R$ 7,90/mês (renovação automática)" },
-        ]}
-      />
     </>
   );
 };

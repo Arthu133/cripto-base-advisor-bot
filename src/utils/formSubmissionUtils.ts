@@ -72,7 +72,6 @@ export const createTelegramMessage = (data: FormValues, consultationId?: string)
     message += ` (${data.exchangeName})`;
   }
   message += `\n*Tem Carteira:* ${data.hasWallet === "yes" ? "Sim" : "Não"}`;
-  message += `\n*Plano Escolhido:* ${getPaymentTypeLabel(data.paymentType)}`;
   
   return message;
 };
