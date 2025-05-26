@@ -21,6 +21,7 @@ export type Database = {
           knowledge_level: string
           main_pain: string
           objective: string
+          phone_number: string
           user_id: string | null
         }
         Insert: {
@@ -34,6 +35,7 @@ export type Database = {
           knowledge_level: string
           main_pain?: string
           objective: string
+          phone_number?: string
           user_id?: string | null
         }
         Update: {
@@ -47,6 +49,7 @@ export type Database = {
           knowledge_level?: string
           main_pain?: string
           objective?: string
+          phone_number?: string
           user_id?: string | null
         }
         Relationships: []

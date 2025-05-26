@@ -3,6 +3,7 @@ import * as z from "zod";
 
 export const formSchema = z.object({
   fullName: z.string().min(2, "Nome deve ter pelo menos 2 caracteres"),
+  phoneNumber: z.string().min(10, "Telefone deve ter pelo menos 10 dígitos").regex(/^[\d\s\(\)\-\+]+$/, "Formato de telefone inválido"),
   mainPain: z.string().min(5, "Por favor, descreva sua maior dor com mais detalhes"),
   knowledgeLevel: z.enum(["beginner", "intermediate", "advanced"]),
   objective: z.enum(["longTerm", "trading", "staking", "basics"]),

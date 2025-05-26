@@ -14,6 +14,7 @@ const ConsultationForm = () => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       fullName: "",
+      phoneNumber: "",
       mainPain: "",
       knowledgeLevel: "beginner",
       objective: "basics",

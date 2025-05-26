@@ -43,6 +43,7 @@ export const getPaymentTypeLabel = (value: string): string => {
 export const saveConsultationData = async (data: FormValues) => {
   const consultationData = {
     full_name: data.fullName,
+    phone_number: data.phoneNumber,
     main_pain: data.mainPain,
     knowledge_level: data.knowledgeLevel,
     objective: data.objective,
@@ -65,6 +66,7 @@ export const createWhatsAppMessage = (data: FormValues, consultationId?: string)
   }
   
   message += `\n*Nome:* ${data.fullName}`;
+  message += `\n*Telefone:* ${data.phoneNumber}`;
   message += `\n*Maior Dor:* ${data.mainPain}`;
   message += `\n*Nível de Conhecimento:* ${getKnowledgeLabel(data.knowledgeLevel)}`;
   message += `\n*Objetivo:* ${getObjectiveLabel(data.objective)}`;
