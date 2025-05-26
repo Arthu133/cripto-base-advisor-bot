@@ -20,7 +20,7 @@ const CryptoHero: React.FC = () => {
       
       <div className="relative z-10 container mx-auto flex flex-col items-center">
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-center mb-6 max-w-4xl leading-tight">
-          Sua Jornada no Mundo das <span className="text-gradient-crypto">Criptomoedas</span> Começa Aqui
+          Sua revolução financeira com <span className="text-gradient-crypto">Criptomoedas</span> Começa Aqui
         </h1>
         
         <p className="text-xl max-w-3xl text-center mb-10 text-gray-700">
