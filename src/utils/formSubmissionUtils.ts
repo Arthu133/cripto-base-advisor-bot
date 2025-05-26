@@ -42,6 +42,8 @@ export const getPaymentTypeLabel = (value: string): string => {
 // Save consultation data to Supabase
 export const saveConsultationData = async (data: FormValues) => {
   const consultationData = {
+    full_name: data.fullName,
+    main_pain: data.mainPain,
     knowledge_level: data.knowledgeLevel,
     objective: data.objective,
     investment_amount: data.investmentAmount,
@@ -53,8 +55,8 @@ export const saveConsultationData = async (data: FormValues) => {
   return await supabase.from('consultations').insert(consultationData).select('id').single();
 };
 
-// Create message from form data
-export const createTelegramMessage = (data: FormValues, consultationId?: string): string => {
+// Create message from form data for WhatsApp
+export const createWhatsAppMessage = (data: FormValues, consultationId?: string): string => {
   let message = `*DADOS DA CONSULTORIA PAGA*\n`;
   
   // Add consultation ID if available

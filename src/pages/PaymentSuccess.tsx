@@ -4,7 +4,7 @@ import { useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, MessageCircle } from 'lucide-react';
-import { createTelegramMessage } from '@/utils/formSubmissionUtils';
+import { createWhatsAppMessage } from '@/utils/formSubmissionUtils';
 
 const PaymentSuccess = () => {
   const [searchParams] = useSearchParams();
@@ -37,9 +37,9 @@ const PaymentSuccess = () => {
 
           // Criar mensagem para WhatsApp
           if (userData) {
-            const message = createTelegramMessage(userData);
+            const message = createWhatsAppMessage(userData);
             const encodedMessage = encodeURIComponent(`Olá Arthur! Acabei de fazer o pagamento da consultoria.\n\n${message}`);
-            const whatsappLink = `https://wa.me/5531986585947?text=${encodedMessage}`;
+            const whatsappLink = `https://wa.me/553191169528?text=${encodedMessage}`;
             setWhatsappUrl(whatsappLink);
           }
         }
@@ -123,7 +123,7 @@ const PaymentSuccess = () => {
           </Button>
 
           <p className="text-sm text-gray-500 mt-4">
-            Telefone: +55 (31) 98658-5947
+            Telefone: +55 (31) 9116-9528
           </p>
         </div>
       </div>
