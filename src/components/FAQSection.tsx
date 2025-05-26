@@ -11,20 +11,17 @@ const FAQSection: React.FC = () => {
   const faqs = [
     {
       question: "Preciso ter conhecimento prévio em criptomoedas?",
-      answer: "Não, a CriptoBase foi desenvolvida especialmente para iniciantes. Nossa IA vai guiar você desde o básico, adaptando as explicações ao seu nível de conhecimento."
+      answer: "Não, a CriptoBase foi desenvolvida especialmente para iniciantes. Irei guia-lo desde o básico, adaptando as explicações ao seu nível de conhecimento."
     },
     {
-      question: "Como funciona a consultoria pelo Telegram?",
-      answer: "Após preencher o formulário, você será direcionado ao Telegram onde nossa IA estará pronta para responder suas dúvidas com base nas informações que você forneceu. Seu histórico de consulta ficará salvo para futuras referências."
+      question: "Como funciona a consultoria pelo Whatsapp?",
+      answer: "Após preencher o formulário, você será direcionado ao Whatsapp onde eu estarei pronto para responder suas dúvidas com base nas informações que você forneceu. Seu histórico de consulta ficará salvo para futuras referências."
     },
     {
       question: "Quanto vou precisar investir para começar?",
       answer: "O valor mínimo varia de acordo com a corretora escolhida, mas existem opções que permitem começar com menos de R$ 100. Nossa consultoria é adaptada ao seu perfil de investimento."
     },
-    {
-      question: "O serviço é realmente gratuito?",
-      answer: "Sim! A versão básica da consultoria é totalmente gratuita. Futuramente, ofereceremos planos premium com recursos adicionais e acesso a consultores humanos."
-    },
+
     {
       question: "É seguro investir em criptomoedas?",
       answer: "Como todo investimento, criptomoedas possuem riscos. Nossa consultoria foca em práticas seguras e estratégias de gerenciamento de risco para iniciantes, ajudando você a evitar armadilhas comuns."
