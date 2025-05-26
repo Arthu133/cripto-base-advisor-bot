@@ -53,8 +53,8 @@ export const saveConsultationData = async (data: FormValues) => {
   return await supabase.from('consultations').insert(consultationData).select('id').single();
 };
 
-// Create message from form data
-export const createTelegramMessage = (data: FormValues, consultationId?: string): string => {
+// Create message from form data for WhatsApp
+export const createWhatsAppMessage = (data: FormValues, consultationId?: string): string => {
   let message = `*DADOS DA CONSULTORIA PAGA*\n`;
   
   // Add consultation ID if available
