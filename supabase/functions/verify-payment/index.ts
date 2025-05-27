@@ -62,7 +62,7 @@ serve(async (req) => {
 
       console.log("Saving subscription data...");
       
-      // Salvar apenas a assinatura no banco (consultoria já foi salva)
+      // Salvar assinatura no banco
       const subscriptionData = {
         user_email: formData.email,
         user_name: formData.fullName,
@@ -92,7 +92,7 @@ serve(async (req) => {
         formData,
         planType,
         endDate: endDate.toISOString(),
-        consultationId: formData.consultationId // Usar o ID que já foi salvo
+        consultationId: formData.consultationId
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,

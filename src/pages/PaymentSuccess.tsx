@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, MessageCircle } from 'lucide-react';
+import { CheckCircle, MessageCircle, AlertCircle } from 'lucide-react';
 import { createWhatsAppMessage } from '@/utils/formSubmissionUtils';
 
 const PaymentSuccess = () => {
@@ -13,6 +13,7 @@ const PaymentSuccess = () => {
   const [formData, setFormData] = useState<any>(null);
   const [whatsappUrl, setWhatsappUrl] = useState('');
   const [consultationId, setConsultationId] = useState<string>('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     const verifyPayment = async () => {
@@ -22,6 +23,7 @@ const PaymentSuccess = () => {
 
       if (!sessionId) {
         console.error("Nenhum session_id encontrado");
+        setErrorMessage("Session ID não encontrado na URL");
         setIsVerifying(false);
         return;
       }
@@ -37,7 +39,9 @@ const PaymentSuccess = () => {
 
         if (error) {
           console.error("Erro na função verify-payment:", error);
-          throw error;
+          setErrorMessage(`Erro na verificação: ${error.message}`);
+          setIsVerifying(false);
+          return;
         }
 
         if (data?.success) {
@@ -59,9 +63,11 @@ const PaymentSuccess = () => {
           }
         } else {
           console.error("Pagamento não foi verificado:", data);
+          setErrorMessage("Pagamento não foi confirmado");
         }
       } catch (error) {
         console.error('Erro ao verificar pagamento:', error);
+        setErrorMessage(`Erro inesperado: ${error.message}`);
       } finally {
         setIsVerifying(false);
       }
@@ -73,7 +79,7 @@ const PaymentSuccess = () => {
   const redirectToWhatsApp = () => {
     if (whatsappUrl) {
       console.log("Redirecionando para WhatsApp:", whatsappUrl);
-      window.location.href = whatsappUrl;
+      window.open(whatsappUrl, '_blank');
     }
   };
 
@@ -94,12 +100,16 @@ const PaymentSuccess = () => {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center max-w-md mx-auto p-6">
           <div className="text-red-500 mb-4">
-            <svg className="w-16 h-16 mx-auto" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-            </svg>
+            <AlertCircle className="w-16 h-16 mx-auto" />
           </div>
           <h2 className="text-2xl font-bold text-gray-800 mb-2">Erro na Verificação</h2>
-          <p className="text-gray-600 mb-6">Não foi possível verificar seu pagamento. Entre em contato conosco.</p>
+          <p className="text-gray-600 mb-4">
+            {errorMessage || "Não foi possível verificar seu pagamento."}
+          </p>
+          <div className="space-y-2 mb-6">
+            <p className="text-sm text-gray-500">Se o pagamento foi processado, entre em contato:</p>
+            <p className="text-sm font-medium">WhatsApp: +55 (31) 9116-9528</p>
+          </div>
           <Button onClick={() => window.location.href = '/'}>
             Voltar ao Início
           </Button>
