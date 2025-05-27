@@ -57,12 +57,74 @@ export type Database = {
         }
         Relationships: []
       }
+      subscriptions: {
+        Row: {
+          amount: number
+          created_at: string
+          end_date: string
+          id: string
+          phone_number: string
+          plan_type: string
+          start_date: string
+          status: string
+          stripe_session_id: string | null
+          stripe_subscription_id: string | null
+          updated_at: string
+          user_email: string
+          user_name: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          end_date: string
+          id?: string
+          phone_number: string
+          plan_type: string
+          start_date?: string
+          status?: string
+          stripe_session_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string
+          user_email: string
+          user_name: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          end_date?: string
+          id?: string
+          phone_number?: string
+          plan_type?: string
+          start_date?: string
+          status?: string
+          stripe_session_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string
+          user_email?: string
+          user_name?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      check_expired_subscriptions: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          user_email: string
+          user_name: string
+          phone_number: string
+          plan_type: string
+          end_date: string
+        }[]
+      }
+      mark_subscription_expired: {
+        Args: { subscription_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

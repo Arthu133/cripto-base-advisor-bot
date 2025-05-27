@@ -1,4 +1,3 @@
-
 import { FormValues } from "@/components/consultation/types";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -33,8 +32,8 @@ export const getInvestmentLabel = (value: string): string => {
 
 export const getPaymentTypeLabel = (value: string): string => {
   const map: Record<string, string> = {
-    monthly: "Pagamento Único - R$ 17,90 (1 mês)",
-    subscription: "Assinatura Mensal - R$ 7,90/mês",
+    monthly_subscription: "Assinatura Mensal - R$ 17,90/mês",
+    three_day_access: "Acesso de 3 Dias - R$ 8,90",
   };
   return map[value] || value;
 };
