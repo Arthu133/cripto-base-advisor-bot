@@ -88,12 +88,13 @@ const ConsultationFormQuestions: React.FC<ConsultationFormQuestionsProps> = ({ c
 
       <FormQuestion
         control={control}
-        name="hasWallet"
-        label="9. Já possui carteira cripto (como Metamask, TrustWallet)?"
+        name="hasCrypto"
+        label="9. Você já possui alguma criptomoeda?"
         options={[
-          { value: "yes", label: "Sim" },
           { value: "no", label: "Não" },
+          { value: "yes", label: "Sim", hasInput: true },
         ]}
+        textInputName="cryptoPortfolio"
       />
     </>
   );

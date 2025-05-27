@@ -50,7 +50,7 @@ export const saveConsultationData = async (data: FormValues) => {
     investment_amount: data.investmentAmount,
     has_exchange: data.hasExchange === "yes",
     exchange_name: data.hasExchange === "yes" ? data.exchangeName : null,
-    has_wallet: data.hasWallet === "yes",
+    has_wallet: data.hasCrypto === "yes",
   };
   
   return await supabase.from('consultations').insert(consultationData).select('id').single();
@@ -76,7 +76,10 @@ export const createWhatsAppMessage = (data: FormValues, consultationId?: string)
   if (data.hasExchange === "yes" && data.exchangeName) {
     message += ` (${data.exchangeName})`;
   }
-  message += `\n*Tem Carteira:* ${data.hasWallet === "yes" ? "Sim" : "Não"}`;
+  message += `\n*Possui Criptomoedas:* ${data.hasCrypto === "yes" ? "Sim" : "Não"}`;
+  if (data.hasCrypto === "yes" && data.cryptoPortfolio) {
+    message += `\n*Portfólio Atual:* ${data.cryptoPortfolio}`;
+  }
   
   return message;
 };

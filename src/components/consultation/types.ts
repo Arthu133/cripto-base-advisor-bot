@@ -11,7 +11,8 @@ export const formSchema = z.object({
   investmentAmount: z.enum(["lessThan100", "between100And500", "moreThan500"]),
   hasExchange: z.enum(["yes", "no"]),
   exchangeName: z.string().optional(),
-  hasWallet: z.enum(["yes", "no"]),
+  hasCrypto: z.enum(["yes", "no"]),
+  cryptoPortfolio: z.string().optional(),
 });
 
 export type FormValues = z.infer<typeof formSchema>;

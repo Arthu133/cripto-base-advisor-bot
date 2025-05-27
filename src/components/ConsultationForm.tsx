@@ -22,7 +22,8 @@ const ConsultationForm = () => {
       investmentAmount: "lessThan100",
       hasExchange: "no",
       exchangeName: "",
-      hasWallet: "no",
+      hasCrypto: "no",
+      cryptoPortfolio: "",
     },
   });
 
