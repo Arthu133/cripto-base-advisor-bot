@@ -43,7 +43,7 @@ const Benefits: React.FC = () => {
   return (
     <section className="py-16 px-4">
       <div className="container mx-auto">
-        <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">Por que escolher a <span className="text-gradient-crypto">CriptoBase</span></h2>
+        <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">Por que escolher uma consultoria personalizada com um especialista?</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {benefits.map((benefit, index) => (
             <BenefitCard 
