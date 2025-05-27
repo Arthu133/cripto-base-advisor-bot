@@ -16,6 +16,7 @@ const ConsultationForm = () => {
       fullName: "",
       phoneNumber: "",
       mainPain: "",
+      email: "",
       knowledgeLevel: "beginner",
       objective: "basics",
       investmentAmount: "lessThan100",

@@ -12,6 +12,7 @@ export type Database = {
       consultations: {
         Row: {
           created_at: string | null
+          email: string
           exchange_name: string | null
           full_name: string
           has_exchange: boolean
@@ -26,6 +27,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          email?: string
           exchange_name?: string | null
           full_name?: string
           has_exchange?: boolean
@@ -40,6 +42,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          email?: string
           exchange_name?: string | null
           full_name?: string
           has_exchange?: boolean

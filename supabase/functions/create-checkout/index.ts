@@ -58,7 +58,7 @@ serve(async (req) => {
     }
 
     const session = await stripe.checkout.sessions.create({
-      customer_email: formData.fullName ? `${formData.fullName.toLowerCase().replace(/\s+/g, '')}@cliente.guiacripto.com` : undefined,
+      customer_email: formData.email || undefined,
       line_items: lineItems,
       mode,
       success_url: `${origin}/payment-success?session_id={CHECKOUT_SESSION_ID}&form_data=${encodeURIComponent(JSON.stringify(formData))}`,
