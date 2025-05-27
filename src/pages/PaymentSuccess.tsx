@@ -108,7 +108,7 @@ const PaymentSuccess = () => {
           </p>
           <div className="space-y-2 mb-6">
             <p className="text-sm text-gray-500">Se o pagamento foi processado, entre em contato:</p>
-            <p className="text-sm font-medium">WhatsApp: +55 (31) 3191-1695</p>
+            <p className="text-sm font-medium">WhatsApp: (31) 3191-1695</p>
           </div>
           <Button onClick={() => window.location.href = '/'}>
             Voltar ao Início
@@ -159,7 +159,7 @@ const PaymentSuccess = () => {
           </Button>
 
           <p className="text-sm text-gray-500 mt-4">
-            Telefone: +55 (31) 3191-1695
+            Telefone: (31) 3191-1695
           </p>
         </div>
       </div>
