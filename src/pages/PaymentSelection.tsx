@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { CreditCard, Check } from 'lucide-react';
+import { CreditCard, Check, Clock } from 'lucide-react';
 import { FormValues } from '@/components/consultation/types';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -31,7 +31,7 @@ const PaymentSelection = () => {
     }
   }, [navigate]);
 
-  const handlePayment = async (paymentType: 'monthly' | 'subscription') => {
+  const handlePayment = async (paymentType: 'monthly_subscription' | 'three_day_access') => {
     if (!formData) return;
 
     setIsProcessing(true);
@@ -92,12 +92,12 @@ const PaymentSelection = () => {
         </div>
 
         <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          {/* Plano Mensal */}
+          {/* Plano 3 Dias */}
           <div className="bg-white rounded-xl shadow-lg p-8 border-2 border-gray-200 hover:border-blue-500 transition-colors">
             <div className="text-center mb-6">
-              <h3 className="text-2xl font-bold text-gray-800 mb-2">Pagamento Único</h3>
-              <div className="text-4xl font-bold text-blue-600 mb-2">R$ 17,90</div>
-              <p className="text-gray-600">1 mês de acesso completo</p>
+              <h3 className="text-2xl font-bold text-gray-800 mb-2">Acesso de 3 Dias</h3>
+              <div className="text-4xl font-bold text-blue-600 mb-2">R$ 8,90</div>
+              <p className="text-gray-600">Acesso completo por 3 dias</p>
             </div>
 
             <ul className="space-y-4 mb-8">
@@ -114,18 +114,18 @@ const PaymentSelection = () => {
                 <span>Estratégias personalizadas</span>
               </li>
               <li className="flex items-center">
-                <Check className="h-5 w-5 text-green-500 mr-3" />
-                <span>Sem renovação automática</span>
+                <Clock className="h-5 w-5 text-blue-500 mr-3" />
+                <span>Acesso por 3 dias</span>
               </li>
             </ul>
 
             <Button
-              onClick={() => handlePayment('monthly')}
+              onClick={() => handlePayment('three_day_access')}
               disabled={isProcessing}
               className="w-full py-4 text-lg font-medium bg-blue-600 hover:bg-blue-700"
             >
               <CreditCard className="mr-2 h-5 w-5" />
-              Escolher Plano Mensal
+              Escolher Plano de 3 Dias
             </Button>
           </div>
 
@@ -139,7 +139,7 @@ const PaymentSelection = () => {
 
             <div className="text-center mb-6">
               <h3 className="text-2xl font-bold text-gray-800 mb-2">Assinatura Mensal</h3>
-              <div className="text-4xl font-bold text-green-600 mb-2">R$ 7,90</div>
+              <div className="text-4xl font-bold text-green-600 mb-2">R$ 17,90</div>
               <p className="text-gray-600">Por mês, renovação automática</p>
             </div>
 
@@ -167,12 +167,12 @@ const PaymentSelection = () => {
             </ul>
 
             <Button
-              onClick={() => handlePayment('subscription')}
+              onClick={() => handlePayment('monthly_subscription')}
               disabled={isProcessing}
               className="w-full py-4 text-lg font-medium bg-green-600 hover:bg-green-700"
             >
               <CreditCard className="mr-2 h-5 w-5" />
-              Escolher Assinatura
+              Escolher Assinatura Mensal
             </Button>
           </div>
         </div>

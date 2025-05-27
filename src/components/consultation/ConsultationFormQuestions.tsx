@@ -34,10 +34,17 @@ const ConsultationFormQuestions: React.FC<ConsultationFormQuestionsProps> = ({ c
         isTextarea={true}
       />
 
+      <FormTextInput
+        control={control}
+        name="email"
+        label="4. Qual o seu email para contato?"
+        placeholder="seu@email.com"
+      />
+
       <FormQuestion
         control={control}
         name="knowledgeLevel"
-        label="4. Qual seu nível atual de conhecimento em cripto?"
+        label="5. Qual seu nível atual de conhecimento em cripto?"
         options={[
           { value: "beginner", label: "Iniciante" },
           { value: "intermediate", label: "Intermediário" },
@@ -48,7 +55,7 @@ const ConsultationFormQuestions: React.FC<ConsultationFormQuestionsProps> = ({ c
       <FormQuestion
         control={control}
         name="objective"
-        label="5. Qual seu objetivo com criptomoedas?"
+        label="6. Qual seu objetivo com criptomoedas?"
         options={[
           { value: "longTerm", label: "Investir a longo prazo" },
           { value: "trading", label: "Fazer trade" },
@@ -60,7 +67,7 @@ const ConsultationFormQuestions: React.FC<ConsultationFormQuestionsProps> = ({ c
       <FormQuestion
         control={control}
         name="investmentAmount"
-        label="6. Quanto você pretende investir por mês?"
+        label="7. Quanto você pretende investir por mês?"
         options={[
           { value: "lessThan100", label: "Menos de R$ 100" },
           { value: "between100And500", label: "Entre R$ 100 e R$ 500" },
@@ -71,7 +78,7 @@ const ConsultationFormQuestions: React.FC<ConsultationFormQuestionsProps> = ({ c
       <FormQuestion
         control={control}
         name="hasExchange"
-        label="7. Já possui conta em alguma corretora?"
+        label="8. Já possui conta em alguma corretora?"
         options={[
           { value: "yes", label: "Sim", hasInput: true },
           { value: "no", label: "Não" },
@@ -82,7 +89,7 @@ const ConsultationFormQuestions: React.FC<ConsultationFormQuestionsProps> = ({ c
       <FormQuestion
         control={control}
         name="hasWallet"
-        label="8. Já possui carteira cripto (como Metamask, TrustWallet)?"
+        label="9. Já possui carteira cripto (como Metamask, TrustWallet)?"
         options={[
           { value: "yes", label: "Sim" },
           { value: "no", label: "Não" },

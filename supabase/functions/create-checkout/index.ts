@@ -25,22 +25,13 @@ serve(async (req) => {
     // Configurar o produto baseado no tipo de pagamento
     let lineItems;
     let mode: "payment" | "subscription";
+    let planType: string;
+    let amount: number;
     
-    if (paymentType === "monthly") {
-      mode = "payment";
-      lineItems = [{
-        price_data: {
-          currency: "brl",
-          product_data: {
-            name: "Consultoria GuiaCripto - 1 Mês",
-            description: "Acesso completo à consultoria personalizada por Arthur Dias durante 1 mês",
-          },
-          unit_amount: 1790, // R$ 17,90 em centavos
-        },
-        quantity: 1,
-      }];
-    } else {
+    if (paymentType === "monthly_subscription") {
       mode = "subscription";
+      planType = "monthly_subscription";
+      amount = 1790; // R$ 17,90 em centavos
       lineItems = [{
         price_data: {
           currency: "brl",
@@ -48,24 +39,40 @@ serve(async (req) => {
             name: "Consultoria GuiaCripto - Assinatura Mensal",
             description: "Acesso completo à consultoria personalizada por Arthur Dias com renovação automática",
           },
-          unit_amount: 790, // R$ 7,90 em centavos
+          unit_amount: amount,
           recurring: {
             interval: "month",
           },
         },
         quantity: 1,
       }];
+    } else {
+      mode = "payment";
+      planType = "three_day_access";
+      amount = 890; // R$ 8,90 em centavos
+      lineItems = [{
+        price_data: {
+          currency: "brl",
+          product_data: {
+            name: "Consultoria GuiaCripto - Acesso 3 Dias",
+            description: "Acesso completo à consultoria personalizada por Arthur Dias durante 3 dias",
+          },
+          unit_amount: amount,
+        },
+        quantity: 1,
+      }];
     }
 
     const session = await stripe.checkout.sessions.create({
-      customer_email: formData.fullName ? `${formData.fullName.toLowerCase().replace(/\s+/g, '')}@cliente.guiacripto.com` : undefined,
+      customer_email: formData.email || undefined,
       line_items: lineItems,
       mode,
-      success_url: `${origin}/payment-success?session_id={CHECKOUT_SESSION_ID}&form_data=${encodeURIComponent(JSON.stringify(formData))}`,
+      success_url: `${origin}/payment-success?session_id={CHECKOUT_SESSION_ID}&form_data=${encodeURIComponent(JSON.stringify(formData))}&plan_type=${planType}`,
       cancel_url: `${origin}/?canceled=true`,
       metadata: {
         form_data: JSON.stringify(formData),
         payment_type: paymentType,
+        plan_type: planType,
       },
     });
 

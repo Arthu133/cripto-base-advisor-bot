@@ -1,4 +1,3 @@
-
 import { FormValues } from "@/components/consultation/types";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -33,8 +32,8 @@ export const getInvestmentLabel = (value: string): string => {
 
 export const getPaymentTypeLabel = (value: string): string => {
   const map: Record<string, string> = {
-    monthly: "Pagamento Único - R$ 17,90 (1 mês)",
-    subscription: "Assinatura Mensal - R$ 7,90/mês",
+    monthly_subscription: "Assinatura Mensal - R$ 17,90/mês",
+    three_day_access: "Acesso de 3 Dias - R$ 8,90",
   };
   return map[value] || value;
 };
@@ -45,6 +44,7 @@ export const saveConsultationData = async (data: FormValues) => {
     full_name: data.fullName,
     phone_number: data.phoneNumber,
     main_pain: data.mainPain,
+    email: data.email,
     knowledge_level: data.knowledgeLevel,
     objective: data.objective,
     investment_amount: data.investmentAmount,
@@ -67,6 +67,7 @@ export const createWhatsAppMessage = (data: FormValues, consultationId?: string)
   
   message += `\n*Nome:* ${data.fullName}`;
   message += `\n*Telefone:* ${data.phoneNumber}`;
+  message += `\n*Email:* ${data.email}`;
   message += `\n*Maior Dor:* ${data.mainPain}`;
   message += `\n*Nível de Conhecimento:* ${getKnowledgeLabel(data.knowledgeLevel)}`;
   message += `\n*Objetivo:* ${getObjectiveLabel(data.objective)}`;
