@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
@@ -10,6 +10,8 @@ import ConsultationSubmitButton from "@/components/consultation/ConsultationSubm
 import { useConsultationSubmit } from "@/hooks/useConsultationSubmit";
 
 const ConsultationForm = () => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -29,13 +31,22 @@ const ConsultationForm = () => {
 
   const { handleSubmit } = useConsultationSubmit();
 
+  const onSubmit = async (data: FormValues) => {
+    setIsSubmitting(true);
+    try {
+      await handleSubmit(data);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="w-full max-w-2xl mx-auto p-6 rounded-xl crypto-card shadow-lg">
       <ConsultationFormHeader />
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <ConsultationFormQuestions control={form.control} />
-          <ConsultationSubmitButton />
+          <ConsultationSubmitButton isSubmitting={isSubmitting} />
         </form>
       </Form>
     </div>

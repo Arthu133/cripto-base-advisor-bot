@@ -2,7 +2,7 @@
 import { useToast } from '@/hooks/use-toast';
 import { FormValues } from '@/components/consultation/types';
 import { useNavigate } from 'react-router-dom';
-import { saveConsultationData } from '@/utils/formSubmissionUtils';
+import { supabase } from '@/integrations/supabase/client';
 
 export function useConsultationSubmit() {
   const { toast } = useToast();
@@ -14,7 +14,26 @@ export function useConsultationSubmit() {
     try {
       // Primeiro salvar os dados da consultoria no banco
       console.log("Salvando dados da consultoria no banco...");
-      const { data: consultationResult, error: consultationError } = await saveConsultationData(data);
+      
+      const consultationData = {
+        full_name: data.fullName,
+        phone_number: data.phoneNumber,
+        main_pain: data.mainPain,
+        email: data.email,
+        knowledge_level: data.knowledgeLevel,
+        objective: data.objective,
+        investment_amount: data.investmentAmount,
+        has_exchange: data.hasExchange === "yes",
+        exchange_name: data.hasExchange === "yes" ? data.exchangeName : null,
+        has_crypto: data.hasCrypto === "yes",
+        crypto_portfolio: data.hasCrypto === "yes" ? data.cryptoPortfolio : null,
+      };
+
+      const { data: consultationResult, error: consultationError } = await supabase
+        .from('consultations')
+        .insert(consultationData)
+        .select('id')
+        .single();
       
       if (consultationError) {
         console.error("Erro ao salvar consultoria:", consultationError);
