@@ -62,7 +62,7 @@ serve(async (req) => {
 
       console.log("Saving subscription data...");
       
-      // Salvar assinatura no banco
+      // Salvar apenas a assinatura no banco (consultoria já foi salva)
       const subscriptionData = {
         user_email: formData.email,
         user_name: formData.fullName,
@@ -85,35 +85,6 @@ serve(async (req) => {
         console.log("Subscription saved successfully");
       }
 
-      // Salvar dados da consultoria
-      console.log("Saving consultation data...");
-      
-      const consultationData = {
-        full_name: formData.fullName,
-        phone_number: formData.phoneNumber,
-        main_pain: formData.mainPain,
-        email: formData.email,
-        knowledge_level: formData.knowledgeLevel,
-        objective: formData.objective,
-        investment_amount: formData.investmentAmount,
-        has_exchange: formData.hasExchange === "yes",
-        exchange_name: formData.hasExchange === "yes" ? formData.exchangeName : null,
-        has_crypto: formData.hasCrypto === "yes",
-        crypto_portfolio: formData.hasCrypto === "yes" ? formData.cryptoPortfolio : null,
-      };
-
-      const { data: consultationResult, error: consultationError } = await supabase
-        .from('consultations')
-        .insert(consultationData)
-        .select('id')
-        .single();
-
-      if (consultationError) {
-        console.error("Erro ao salvar consultoria:", consultationError);
-      } else {
-        console.log("Consultation saved successfully:", consultationResult?.id);
-      }
-
       console.log("Payment verification completed successfully");
 
       return new Response(JSON.stringify({ 
@@ -121,7 +92,7 @@ serve(async (req) => {
         formData,
         planType,
         endDate: endDate.toISOString(),
-        consultationId: consultationResult?.id
+        consultationId: formData.consultationId // Usar o ID que já foi salvo
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,

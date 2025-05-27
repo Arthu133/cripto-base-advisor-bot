@@ -2,6 +2,7 @@
 import { useToast } from '@/hooks/use-toast';
 import { FormValues } from '@/components/consultation/types';
 import { useNavigate } from 'react-router-dom';
+import { saveConsultationData } from '@/utils/formSubmissionUtils';
 
 export function useConsultationSubmit() {
   const { toast } = useToast();
@@ -11,11 +12,27 @@ export function useConsultationSubmit() {
     console.log("Form data:", data);
     
     try {
-      // Armazenar dados do formulário no localStorage para usar na próxima página
-      localStorage.setItem('consultationFormData', JSON.stringify(data));
+      // Primeiro salvar os dados da consultoria no banco
+      console.log("Salvando dados da consultoria no banco...");
+      const { data: consultationResult, error: consultationError } = await saveConsultationData(data);
+      
+      if (consultationError) {
+        console.error("Erro ao salvar consultoria:", consultationError);
+        throw new Error("Erro ao salvar dados da consultoria");
+      }
+
+      console.log("Consultoria salva com sucesso:", consultationResult?.id);
+      
+      // Armazenar dados do formulário e ID da consultoria no localStorage
+      const formDataWithId = {
+        ...data,
+        consultationId: consultationResult?.id
+      };
+      
+      localStorage.setItem('consultationFormData', JSON.stringify(formDataWithId));
       
       toast({
-        title: "Formulário enviado!",
+        title: "Dados salvos com sucesso!",
         description: "Agora escolha seu plano de pagamento.",
       });
 
@@ -24,8 +41,8 @@ export function useConsultationSubmit() {
     } catch (error) {
       console.error("Erro ao processar formulário:", error);
       toast({
-        title: "Erro ao processar formulário",
-        description: "Ocorreu um erro. Tente novamente.",
+        title: "Erro ao salvar dados",
+        description: "Ocorreu um erro ao salvar seus dados. Tente novamente.",
         variant: "destructive",
       });
     }
