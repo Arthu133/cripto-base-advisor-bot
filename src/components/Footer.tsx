@@ -27,7 +27,7 @@ const Footer: React.FC = () => {
           <div>
             <h4 className="text-xl font-semibold mb-4">Contato</h4>
             <p className="text-gray-300">
-              WhatsApp: +55 (31) 93191-1695<br />
+              WhatsApp: +55 (31) 3191-1695<br />
               Instagram: @tzcripto
             </p>
           </div>

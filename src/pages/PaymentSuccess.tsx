@@ -57,7 +57,7 @@ const PaymentSuccess = () => {
           if (data.formData) {
             const message = createWhatsAppMessage(data.formData, data.consultationId);
             const encodedMessage = encodeURIComponent(`Olá Arthur! Acabei de fazer o pagamento da consultoria.\n\n${message}`);
-            const whatsappLink = `https://wa.me/553193191695?text=${encodedMessage}`;
+            const whatsappLink = `https://wa.me/5531319116958?text=${encodedMessage}`;
             setWhatsappUrl(whatsappLink);
             console.log("URL do WhatsApp criada:", whatsappLink);
           }
@@ -108,7 +108,7 @@ const PaymentSuccess = () => {
           </p>
           <div className="space-y-2 mb-6">
             <p className="text-sm text-gray-500">Se o pagamento foi processado, entre em contato:</p>
-            <p className="text-sm font-medium">WhatsApp: +55 (31) 93191-1695</p>
+            <p className="text-sm font-medium">WhatsApp: +55 (31) 3191-1695</p>
           </div>
           <Button onClick={() => window.location.href = '/'}>
             Voltar ao Início
@@ -159,7 +159,7 @@ const PaymentSuccess = () => {
           </Button>
 
           <p className="text-sm text-gray-500 mt-4">
-            Telefone: +55 (31) 93191-1695
+            Telefone: +55 (31) 3191-1695
           </p>
         </div>
       </div>
