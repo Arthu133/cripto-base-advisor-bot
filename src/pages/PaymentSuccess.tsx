@@ -56,12 +56,8 @@ const PaymentSuccess = () => {
           // Criar mensagem para WhatsApp
           if (data.formData) {
             const message = createWhatsAppMessage(data.formData, data.consultationId);
-            const encodedMessage = encodeURIComponent(`Olá Arthur! Acabei de fazer o pagamento da consultoria.\n\n${message}`);
-<<<<<<< HEAD
+            const encodedMessage = encodeURIComponent(`Olá Arthur! Acabei de enviar minhas informações e estou no aguardo da sua análise!.`);
             const whatsappLink = `https://wa.me/553131911695?text=${encodedMessage}`;
-=======
-            const whatsappLink = `https://wa.me/5531319116958?text=${encodedMessage}`;
->>>>>>> 2a05326c3142cd138d10b258fb5d8111e8465371
             setWhatsappUrl(whatsappLink);
             console.log("URL do WhatsApp criada:", whatsappLink);
           }
