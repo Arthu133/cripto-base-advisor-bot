@@ -1,3 +1,4 @@
+
 import { FormValues } from "@/components/consultation/types";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -50,7 +51,8 @@ export const saveConsultationData = async (data: FormValues) => {
     investment_amount: data.investmentAmount,
     has_exchange: data.hasExchange === "yes",
     exchange_name: data.hasExchange === "yes" ? data.exchangeName : null,
-    has_wallet: data.hasCrypto === "yes",
+    has_crypto: data.hasCrypto === "yes",
+    crypto_portfolio: data.hasCrypto === "yes" ? data.cryptoPortfolio : null,
   };
   
   return await supabase.from('consultations').insert(consultationData).select('id').single();
