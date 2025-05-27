@@ -12,36 +12,53 @@ const PaymentSuccess = () => {
   const [paymentVerified, setPaymentVerified] = useState(false);
   const [formData, setFormData] = useState<any>(null);
   const [whatsappUrl, setWhatsappUrl] = useState('');
+  const [consultationId, setConsultationId] = useState<string>('');
 
   useEffect(() => {
     const verifyPayment = async () => {
       const sessionId = searchParams.get('session_id');
-      const formDataParam = searchParams.get('form_data');
+
+      console.log("Verificando pagamento com session_id:", sessionId);
 
       if (!sessionId) {
+        console.error("Nenhum session_id encontrado");
         setIsVerifying(false);
         return;
       }
 
       try {
+        console.log("Chamando função verify-payment...");
+        
         const { data, error } = await supabase.functions.invoke('verify-payment', {
           body: { sessionId }
         });
 
-        if (error) throw error;
+        console.log("Resposta da função verify-payment:", data, error);
 
-        if (data.success) {
+        if (error) {
+          console.error("Erro na função verify-payment:", error);
+          throw error;
+        }
+
+        if (data?.success) {
+          console.log("Pagamento verificado com sucesso!");
           setPaymentVerified(true);
-          const userData = data.formData || (formDataParam ? JSON.parse(decodeURIComponent(formDataParam)) : null);
-          setFormData(userData);
+          setFormData(data.formData);
+          
+          if (data.consultationId) {
+            setConsultationId(data.consultationId);
+          }
 
           // Criar mensagem para WhatsApp
-          if (userData) {
-            const message = createWhatsAppMessage(userData);
+          if (data.formData) {
+            const message = createWhatsAppMessage(data.formData, data.consultationId);
             const encodedMessage = encodeURIComponent(`Olá Arthur! Acabei de fazer o pagamento da consultoria.\n\n${message}`);
             const whatsappLink = `https://wa.me/553191169528?text=${encodedMessage}`;
             setWhatsappUrl(whatsappLink);
+            console.log("URL do WhatsApp criada:", whatsappLink);
           }
+        } else {
+          console.error("Pagamento não foi verificado:", data);
         }
       } catch (error) {
         console.error('Erro ao verificar pagamento:', error);
@@ -55,6 +72,7 @@ const PaymentSuccess = () => {
 
   const redirectToWhatsApp = () => {
     if (whatsappUrl) {
+      console.log("Redirecionando para WhatsApp:", whatsappUrl);
       window.location.href = whatsappUrl;
     }
   };
@@ -101,8 +119,16 @@ const PaymentSuccess = () => {
           </h1>
           
           <p className="text-lg text-gray-600 mb-6">
-            Obrigado {formData?.fullName || 'pelo seu pagamento'}! Sua consultoria foi confirmada.
+            Obrigado {formData?.fullName || 'pelo seu pagamento'}! Sua consultoria foi confirmada e seus dados foram salvos.
           </p>
+
+          {consultationId && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+              <p className="text-blue-800 font-medium">
+                ID da sua consulta: {consultationId}
+              </p>
+            </div>
+          )}
 
           <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-8 text-left">
             <h3 className="font-semibold text-blue-800 mb-2">Próximos Passos:</h3>
