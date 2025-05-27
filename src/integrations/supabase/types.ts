@@ -16,6 +16,7 @@ export type Database = {
           email: string
           exchange_name: string | null
           full_name: string
+          has_crypto: boolean
           has_exchange: boolean
           id: string
           investment_amount: string
@@ -31,6 +32,7 @@ export type Database = {
           email?: string
           exchange_name?: string | null
           full_name?: string
+          has_crypto?: boolean
           has_exchange?: boolean
           id?: string
           investment_amount: string
@@ -46,6 +48,7 @@ export type Database = {
           email?: string
           exchange_name?: string | null
           full_name?: string
+          has_crypto?: boolean
           has_exchange?: boolean
           id?: string
           investment_amount?: string
